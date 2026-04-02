@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/perps-index-engine",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build perps-index-engine')\"",
+    "test": "node -e \"console.log('test perps-index-engine')\"",
+    "lint": "node -e \"console.log('lint perps-index-engine')\"",
+    "typecheck": "node -e \"console.log('typecheck perps-index-engine')\""
+  }
+}

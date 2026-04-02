@@ -1,0 +1,16 @@
+{
+  "name": "hypermythx-combined-superassembly-starter",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "node apps/web/server.mjs",
+    "start:supernode": "node apps/supernode/index.mjs",
+    "start:vr": "node apps/vr-superbrain/index.mjs",
+    "smoke:test": "node scripts/smoke-test.mjs"
+  }
+}

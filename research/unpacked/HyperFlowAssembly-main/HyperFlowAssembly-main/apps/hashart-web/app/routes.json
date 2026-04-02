@@ -1,0 +1,11 @@
+[
+  "/",
+  "/trending",
+  "/shady",
+  "/create",
+  "/gallery",
+  "/cockpit",
+  "/generator/[slug]",
+  "/video/[id]",
+  "/reviews/[id]"
+]

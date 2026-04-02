@@ -1,0 +1,34 @@
+{
+  "nodeId": "tianezha",
+  "label": "Tianezha",
+  "role": "peer_compute_node",
+  "domain": "tianezha.world",
+  "primaryWallet": "PENDING_TIANEZHA_SOLANA_ADDRESS",
+  "capabilities": {
+    "compute": [
+      "mesh_compute",
+      "market_forecasts",
+      "cancer_research_compute",
+      "world_activation"
+    ],
+    "services": [
+      "peer_compute_sales",
+      "market_intelligence",
+      "public_router",
+      "world_directory"
+    ],
+    "settlementAdapters": [
+      {
+        "kind": "solana_memo",
+        "label": "Solana memo settlement",
+        "optional": true
+      },
+      {
+        "kind": "x402",
+        "label": "x402-compatible settlement",
+        "optional": true
+      }
+    ]
+  },
+  "notes": "Tianezha is the only public bridge to privileged strategy and sub-agent coordination."
+}

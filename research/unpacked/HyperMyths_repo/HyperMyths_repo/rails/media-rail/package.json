@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/media-rail",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build media-rail')\"",
+    "test": "node -e \"console.log('test media-rail')\"",
+    "lint": "node -e \"console.log('lint media-rail')\"",
+    "typecheck": "node -e \"console.log('typecheck media-rail')\""
+  }
+}

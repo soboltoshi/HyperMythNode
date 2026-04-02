@@ -1,0 +1,20 @@
+{
+  "name": "@hypermyths/web",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@hypermyths/config": "workspace:*",
+    "@hypermyths/core": "workspace:*",
+    "@hypermyths/protocol": "workspace:*",
+    "@hypermyths/store": "workspace:*",
+    "next": "^16.0.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.24.2"
+  }
+}

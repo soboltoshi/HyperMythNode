@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/wechat-adapter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build wechat-adapter')\"",
+    "test": "node -e \"console.log('test wechat-adapter')\"",
+    "lint": "node -e \"console.log('lint wechat-adapter')\"",
+    "typecheck": "node -e \"console.log('typecheck wechat-adapter')\""
+  }
+}

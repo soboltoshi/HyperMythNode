@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/hashmedia-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build hashmedia-worker')\"",
+    "test": "node -e \"console.log('test hashmedia-worker')\"",
+    "lint": "node -e \"console.log('lint hashmedia-worker')\"",
+    "typecheck": "node -e \"console.log('typecheck hashmedia-worker')\""
+  }
+}

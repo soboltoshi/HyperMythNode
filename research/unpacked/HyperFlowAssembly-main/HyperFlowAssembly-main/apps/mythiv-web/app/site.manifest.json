@@ -1,0 +1,22 @@
+{
+  "appId": "mythiv-web",
+  "label": "MYTHIV",
+  "nodeOwner": "mythiv",
+  "authMode": "admin_bypass",
+  "paymentMode": "admin_bypass",
+  "defaultVisibility": "reviewable",
+  "primaryBoxes": [
+    "ComputationMarketBox",
+    "RouterEconomicsBox",
+    "HyperliquidConvergenceBox",
+    "TreasuryBox"
+  ],
+  "routeRoots": [
+    "/",
+    "/offers",
+    "/requests",
+    "/handoffs",
+    "/network",
+    "/status"
+  ]
+}

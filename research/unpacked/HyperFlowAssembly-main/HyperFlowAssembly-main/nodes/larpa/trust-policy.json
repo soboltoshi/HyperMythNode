@@ -1,0 +1,15 @@
+{
+  "nodeId": "larpa",
+  "trustedPeers": [
+    {
+      "peerId": "tianezha",
+      "allowedTradeCategories": ["compute", "media_pipeline"],
+      "blockedTradeCategories": []
+    },
+    {
+      "peerId": "mythiv",
+      "allowedTradeCategories": ["handoff", "media_pipeline", "preservation"],
+      "blockedTradeCategories": []
+    }
+  ]
+}

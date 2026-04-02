@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/session-kernel",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build session-kernel')\"",
+    "test": "node -e \"console.log('test session-kernel')\"",
+    "lint": "node -e \"console.log('lint session-kernel')\"",
+    "typecheck": "node -e \"console.log('typecheck session-kernel')\""
+  }
+}

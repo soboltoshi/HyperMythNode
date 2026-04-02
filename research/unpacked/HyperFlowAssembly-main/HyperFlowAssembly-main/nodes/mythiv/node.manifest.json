@@ -1,0 +1,32 @@
+{
+  "nodeId": "mythiv",
+  "label": "MYTHIV",
+  "role": "broker_adapter_node",
+  "domain": null,
+  "primaryWallet": "PENDING_MYTHIV_SOLANA_ADDRESS",
+  "capabilities": {
+    "compute": [
+      "brokered_compute",
+      "routing",
+      "settlement"
+    ],
+    "services": [
+      "asset_handoff",
+      "project_portability",
+      "compute_brokerage"
+    ],
+    "settlementAdapters": [
+      {
+        "kind": "solana_memo",
+        "label": "Solana memo settlement",
+        "optional": true
+      },
+      {
+        "kind": "x402",
+        "label": "x402-compatible settlement",
+        "optional": true
+      }
+    ]
+  },
+  "notes": "Sovereign broker node even though the implementation lives beside adapter packages."
+}

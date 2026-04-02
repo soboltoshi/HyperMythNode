@@ -1,0 +1,19 @@
+{
+  "name": "last-experiments",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "desktop/claw-shell",
+    "desktop/claw-companion",
+    "agents/solana-agent-kit"
+  ],
+  "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "build:web": "npm --workspace apps/web run build",
+    "start:web": "npm --workspace apps/web run start",
+    "dev:hermes": "npm --prefix agents/hermes/runtime run start",
+    "dev:companion": "npm --workspace desktop/claw-companion run serve",
+    "dev:solana": "npm --workspace agents/solana-agent-kit run serve",
+    "test:hermes": "npm --prefix agents/hermes/runtime run test"
+  }
+}

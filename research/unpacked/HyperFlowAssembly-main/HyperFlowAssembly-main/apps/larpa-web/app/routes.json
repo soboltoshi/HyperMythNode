@@ -1,0 +1,11 @@
+[
+  "/",
+  "/gift-family",
+  "/music-remakes",
+  "/custom",
+  "/reviews",
+  "/cockpit",
+  "/login",
+  "/project/[id]",
+  "/generator/[slug]"
+]

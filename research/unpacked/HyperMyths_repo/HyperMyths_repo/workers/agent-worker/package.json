@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/agent-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build agent-worker')\"",
+    "test": "node -e \"console.log('test agent-worker')\"",
+    "lint": "node -e \"console.log('lint agent-worker')\"",
+    "typecheck": "node -e \"console.log('typecheck agent-worker')\""
+  }
+}

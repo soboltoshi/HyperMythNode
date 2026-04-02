@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/helius-adapter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build helius-adapter')\"",
+    "test": "node -e \"console.log('test helius-adapter')\"",
+    "lint": "node -e \"console.log('lint helius-adapter')\"",
+    "typecheck": "node -e \"console.log('typecheck helius-adapter')\""
+  }
+}

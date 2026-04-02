@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/agent-worker",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@hypermyths/core": "workspace:*"
+  }
+}

@@ -1,0 +1,21 @@
+# Firebase App Hosting configuration
+# Keep secrets in Secret Manager in production.
+
+env:
+  - variable: NEXT_PUBLIC_APP_NAME
+    value: HyperMyths
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_DEFAULT_WORLD
+    value: genesis
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: ADMIN_API_KEY
+    secret: ADMIN_API_KEY
+
+scripts:
+  buildCommand: pnpm install && pnpm build

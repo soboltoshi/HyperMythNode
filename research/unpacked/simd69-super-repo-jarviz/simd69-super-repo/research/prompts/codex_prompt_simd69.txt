@@ -1,0 +1,40 @@
+Build a SIMD69 ordering adapter for a lightweight procedural 3D/VR game stack.
+
+Architecture:
+- Rust kernel is canonical truth
+- Lua scripts define procedural generation, agent behaviors, and shell macros
+- NL shell translates plain English into safe structured commands
+- All commands pass through SIMD69 ordering before mutating world state
+
+Implement:
+1. kernel/order/simd69 with:
+   - types.rs
+   - scorer.rs
+   - constraints.rs
+   - planner.rs
+   - fallback.rs
+   - receipts.rs
+2. OrderingIntent fields:
+   id, kind, actorId, createdAtMs, urgency, fairnessWeight, computeCost, worldImpact, dependencies, cooldownKey, payload
+3. OrderingDecision fields:
+   acceptedNow, queued, rejected, fallbackOrder
+4. Deterministic fallback ordering:
+   timestamp asc, then stable hash(id)
+5. Batch planner:
+   - reject invalid dependencies
+   - apply cooldown penalties
+   - cap by compute budget per tick
+   - produce accepted + queued + rejected
+6. Receipt emission for accepted actions
+7. Lua bridge:
+   - expose submit_intent(...)
+   - expose get_decision(...)
+8. NL shell:
+   - parse English into safe JSON command
+   - validate schema
+   - submit to kernel
+9. Include 3 example commands:
+   - spawn agents
+   - request world scan
+   - prioritize cheap compute
+10. Keep system lightweight and deterministic

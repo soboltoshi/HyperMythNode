@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/cancerhawk",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build cancerhawk')\"",
+    "test": "node -e \"console.log('test cancerhawk')\"",
+    "lint": "node -e \"console.log('lint cancerhawk')\"",
+    "typecheck": "node -e \"console.log('typecheck cancerhawk')\""
+  }
+}

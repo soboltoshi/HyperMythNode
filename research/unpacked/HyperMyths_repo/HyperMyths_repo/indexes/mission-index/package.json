@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/mission-index",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build mission-index')\"",
+    "test": "node -e \"console.log('test mission-index')\"",
+    "lint": "node -e \"console.log('lint mission-index')\"",
+    "typecheck": "node -e \"console.log('typecheck mission-index')\""
+  }
+}

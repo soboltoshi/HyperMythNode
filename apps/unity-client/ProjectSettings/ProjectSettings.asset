@@ -1,0 +1,361 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!129 &1
+PlayerSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 26
+  productGUID: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4
+  AndroidProfiler: 0
+  AndroidFilterTouchesWhenObscured: 0
+  AndroidEnableSustainedPerformanceMode: 1
+  defaultScreenOrientation: 3
+  targetDevice: 2
+  useOnDemandResources: 0
+  accelerometerFrequency: 0
+  companyName: Last Experiments
+  productName: Last Experiments
+  defaultCursor: {fileID: 0}
+  cursorHotspot: {x: 0, y: 0}
+  m_ShowUnitySplashScreen: 0
+  m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
+  m_SplashScreenOverlayOpacity: 1
+  m_SplashScreenAnimation: 1
+  m_SplashScreenLogoStyle: 1
+  m_SplashScreenDrawMode: 0
+  m_SplashScreenBackgroundAnimationZoom: 1
+  m_SplashScreenLogoAnimationZoom: 1
+  m_SplashScreenBackgroundLandscapeAspect: 1
+  m_SplashScreenBackgroundPortraitAspect: 1
+  m_SplashScreenLogos: []
+  m_VirtualRealitySplashScreen: {fileID: 0}
+  m_HolographicTrackingLossScreen: {fileID: 0}
+  defaultScreenWidth: 1024
+  defaultScreenHeight: 768
+  defaultScreenWidthWeb: 960
+  defaultScreenHeightWeb: 600
+  m_StereoRenderingPath: 1
+  m_ActiveColorSpace: 1
+  m_SpriteBatchVertexThreshold: 300
+  m_MTRendering: 1
+  mipStripping: 0
+  numberOfMipsStripped: 0
+  m_StackTraceTypes: 010000000100000001000000010000000100000001000000
+  iosShowActivityIndicatorOnLoading: -1
+  androidShowActivityIndicatorOnLoading: -1
+  displayResolutionDialog: 0
+  androidSplashScreen: {fileID: 0}
+  AndroidTargetOsVersion: 0
+  AndroidBundleVersionCode: 1
+  AndroidMinSdkVersion: 29
+  AndroidTargetSdkVersion: 32
+  AndroidPreferredInstallLocation: 1
+  aotOptions:
+  stripEngineCode: 1
+  iPhoneStrippingLevel: 0
+  iPhoneScriptCallOptimization: 0
+  ForceInternetPermission: 0
+  ForceSDCardPermission: 0
+  CreateWallpaper: 0
+  APKExpansionFiles: 0
+  keepLoadedShadersAlive: 0
+  StripUnusedMeshComponents: 1
+  m_VertexChannelCompressionMask: 4054
+  iPhoneSdkVersion: 988
+  iOSTargetOSVersionString: 12.0
+  tvOSSdkVersion: 0
+  tvOSRequireExtendedGameController: 0
+  tvOSTargetOSVersionString: 12.0
+  uIPrerenderedIcon: 0
+  uIRequiresPersistentWiFi: 0
+  uIRequiresFullScreen: 1
+  uIStatusBarHidden: 1
+  uIExitOnSuspend: 0
+  uIStatusBarStyle: 0
+  appleDeveloperTeamID:
+  iOSManualSigningProvisioningProfileID:
+  tvOSManualSigningProvisioningProfileID:
+  iOSManualSigningProvisioningProfileType: 0
+  tvOSManualSigningProvisioningProfileType: 0
+  appleEnableAutomaticSigning: 0
+  iOSRequireARKit: 0
+  iOSAutomaticallyDetectAndAddCapabilities: 1
+  appleEnableProMotion: 0
+  clonedFromGUID: 00000000000000000000000000000000
+  templatePackageId:
+  templateDefaultScene:
+  useCustomMainManifest: 0
+  useCustomLauncherManifest: 0
+  useCustomMainGradleTemplate: 0
+  useCustomLauncherGradleManifest: 0
+  useCustomBaseGradleTemplate: 0
+  useCustomGradlePropertiesTemplate: 0
+  useCustomGradleSettingsTemplate: 0
+  useCustomProguardFile: 0
+  AndroidTargetArchitectures: 2
+  AndroidTargetDevices: 0
+  AndroidSplashScreenScale: 0
+  androidSplashScreen: {fileID: 0}
+  AndroidKeystoreName:
+  AndroidKeyaliasName:
+  AndroidBuildApkPerCpuArchitecture: 0
+  AndroidBuildSystem: 0
+  androidUseCustomKeystore: 0
+  m_BuildTargetIcons: []
+  m_BuildTargetPlatformIcons: []
+  m_BuildTargetBatching: []
+  m_BuildTargetShaderSettings: []
+  m_BuildTargetGraphicsJobs: []
+  m_BuildTargetGraphicsJobMode: []
+  m_BuildTargetGraphicsAPIs: []
+  openGLRequireES31: 0
+  openGLRequireES31AEP: 0
+  openGLRequireES32: 0
+  m_TemplateCustomTags: {}
+  mobileMTRendering:
+    Android: 1
+    iPhone: 1
+    tvOS: 1
+  vulkanNumSwapchainBuffers: 3
+  vulkanEnableSetSRGBWrite: 0
+  vulkanEnablePreTransform: 0
+  vulkanEnableLateAcquireNextImage: 0
+  vulkanEnableCommandBufferRecycling: 1
+  m_ColorGamuts: 00000000
+  targetPixelDensity: 0
+  resolutionScalingMode: 0
+  resetResolutionOnWindowResize: 0
+  androidSupportedAspectRatio: 1
+  androidMaxAspectRatio: 2.1
+  applicationIdentifier:
+    Android: com.LastExperiments.Quest3
+    Standalone: com.LastExperiments.Quest3
+    iPhone: com.LastExperiments.Quest3
+  buildNumber:
+    Standalone: 0
+    VisionOS: 0
+    iPhone: 0
+    tvOS: 0
+  overrideDefaultApplicationIdentifier: 1
+  AndroidBundleVersionCode: 1
+  AndroidMinSdkVersion: 29
+  AndroidTargetSdkVersion: 32
+  m_RenderingPath: 1
+  m_MobileRenderingPath: 1
+  metroPackageName: LastExperiments
+  metroPackageVersion:
+  metroCertificatePath:
+  metroCertificatePassword:
+  metroCertificateSubject:
+  metroCertificateIssuer:
+  metroCertificateNotAfter: 0000000000000000
+  metroApplicationDescription: Last Experiments
+  wsaImages: {}
+  metroTileShortName:
+  metroTileShowName: 0
+  metroMediumTileShowName: 0
+  metroLargeTileShowName: 0
+  metroWideTileShowName: 0
+  metroSupportStreamingInstall: 0
+  metroLastRequiredScene: 0
+  metroDefaultTileSize: 1
+  metroTileForegroundText: 2
+  metroTileBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21568628, a: 0}
+  metroSplashScreenBackgroundColor: {r: 0.12941177, g: 0.17254902, b: 0.21568628, a: 1}
+  platformCapabilities: {}
+  metroTargetDeviceFamilies: {}
+  metroFTAName:
+  metroFTAFileTypes: []
+  metroProtocolName:
+  XboxOneProductId:
+  XboxOneGameOsOverridePath:
+  XboxOnePackagingOverridePath:
+  XboxOneAppManifestOverridePath:
+  XboxOnePackageEncryption: 0
+  XboxOnePackageUpdateGranularity: 2
+  XboxOneDescription:
+  XboxOneLanguage:
+  - enus
+  XboxOneCapability: []
+  XboxOneGameRating: {}
+  XboxOneIsContentPackage: 0
+  XboxOneEnhancedXboxCompatibilityMode: 0
+  XboxOneAllowedProductIds: []
+  XboxOnePersistentLocalStorageSize: 0
+  XboxOneXTitleMemory: 8
+  XboxOneOverrideIdentityName:
+  XboxOneOverrideIdentityPublisher:
+  vrabordam: 0
+  vrEditorSettings:
+    daydream:
+      daydreamIconForeground: {fileID: 0}
+      daydreamIconBackground: {fileID: 0}
+      depthFormat: 0
+      useSustainedPerformanceMode: 0
+      enableVideoLayer: 0
+      useProtectedVideoMemory: 0
+      minimumSupportedHeadTracking: 0
+      maximumSupportedHeadTracking: 1
+  cloudProjectId:
+  framebufferDepthMemorylessMode: 0
+  projectName:
+  organizationId:
+  cloudEnabled: 0
+  legacyClampBlendShapeWeights: 0
+  hmiLoadingImage: {fileID: 0}
+  platformRequiresReadableAssets: 0
+  virtualTexturingSupportEnabled: 0
+  insecureHttpOption: 0
+  scriptingDefineSymbols:
+    Android: META_XR_SDK
+    Standalone: META_XR_SDK
+  additionalCompilerArguments: {}
+  scriptingBackend:
+    Android: 1
+    Standalone: 0
+  il2cppCompilerConfiguration:
+    Android: 2
+  il2cppCodeGeneration: 0
+  managedStrippingLevel:
+    Android: 1
+  incrementalIl2cppBuild:
+    Android: 1
+  allowUnsafeCode: 0
+  useDeterministicCompilation: 1
+  additionalIl2CppArgs:
+  scriptingRuntimeVersion: 1
+  gcIncremental: 1
+  gcWBarrierValidation: 0
+  apiCompatibilityLevelPerPlatform:
+    Android: 3
+  m_RenderingPath: 1
+  m_MobileRenderingPath: 1
+  activeInputHandler: 2
+  windowsGamepadBackendHint: 0
+  cloudServicesEnabled: {}
+  luminVersion:
+    m_Major: 0
+    m_Minor: 1
+    m_Build: 0
+  luminCert:
+    m_CertPath:
+    m_SignPackage: 1
+  luminIsChannelApp: 0
+  luminVersion:
+    m_VersionCode: 1
+    m_VersionName:
+  m_QualitySettingsNames:
+  - Low
+  - Medium
+  - High
+  m_QualitySettings:
+  - serializedVersion: 2
+    name: Low
+    pixelLightCount: 0
+    shadows: 0
+    shadowResolution: 0
+    shadowProjection: 1
+    shadowCascades: 1
+    shadowDistance: 15
+    shadowNearPlaneOffset: 3
+    shadowCascade2Split: 0.33333334
+    shadowCascade4Split: {x: 0.06666667, y: 0.2, z: 0.46666667}
+    shadowmaskMode: 0
+    skinWeights: 2
+    textureQuality: 1
+    anisotropicTextures: 0
+    antiAliasing: 0
+    softParticles: 0
+    softVegetation: 0
+    realtimeReflectionProbes: 0
+    billboardsFaceCameraPosition: 0
+    useLegacyDetailDistribution: 1
+    vSyncCount: 0
+    lodBias: 0.3
+    maximumLODLevel: 0
+    streamingMipmapsActive: 0
+    streamingMipmapsAddAllCameras: 1
+    streamingMipmapsMemoryBudget: 512
+    streamingMipmapsRenderersPerFrame: 512
+    streamingMipmapsMaxLevelReduction: 2
+    streamingMipmapsMaxFileIORequests: 1024
+    particleRaycastBudget: 4
+    asyncUploadTimeSlice: 2
+    asyncUploadBufferSize: 16
+    asyncUploadPersistentBuffer: 1
+    resolutionScalingFixedDPIFactor: 1
+    customRenderPipeline: {fileID: 0}
+    excludedTargetPlatforms: []
+  - serializedVersion: 2
+    name: Medium
+    pixelLightCount: 1
+    shadows: 1
+    shadowResolution: 0
+    shadowProjection: 1
+    shadowCascades: 1
+    shadowDistance: 20
+    shadowNearPlaneOffset: 3
+    shadowCascade2Split: 0.33333334
+    shadowCascade4Split: {x: 0.06666667, y: 0.2, z: 0.46666667}
+    shadowmaskMode: 0
+    skinWeights: 2
+    textureQuality: 0
+    anisotropicTextures: 1
+    antiAliasing: 0
+    softParticles: 0
+    softVegetation: 0
+    realtimeReflectionProbes: 1
+    billboardsFaceCameraPosition: 1
+    useLegacyDetailDistribution: 1
+    vSyncCount: 1
+    lodBias: 0.7
+    maximumLODLevel: 0
+    streamingMipmapsActive: 0
+    streamingMipmapsAddAllCameras: 1
+    streamingMipmapsMemoryBudget: 512
+    streamingMipmapsRenderersPerFrame: 512
+    streamingMipmapsMaxLevelReduction: 2
+    streamingMipmapsMaxFileIORequests: 1024
+    particleRaycastBudget: 16
+    asyncUploadTimeSlice: 2
+    asyncUploadBufferSize: 16
+    asyncUploadPersistentBuffer: 1
+    resolutionScalingFixedDPIFactor: 1
+    customRenderPipeline: {fileID: 0}
+    excludedTargetPlatforms: []
+  - serializedVersion: 2
+    name: High
+    pixelLightCount: 2
+    shadows: 2
+    shadowResolution: 1
+    shadowProjection: 1
+    shadowCascades: 2
+    shadowDistance: 40
+    shadowNearPlaneOffset: 3
+    shadowCascade2Split: 0.33333334
+    shadowCascade4Split: {x: 0.06666667, y: 0.2, z: 0.46666667}
+    shadowmaskMode: 0
+    skinWeights: 4
+    textureQuality: 0
+    anisotropicTextures: 2
+    antiAliasing: 2
+    softParticles: 1
+    softVegetation: 1
+    realtimeReflectionProbes: 1
+    billboardsFaceCameraPosition: 1
+    useLegacyDetailDistribution: 1
+    vSyncCount: 1
+    lodBias: 1
+    maximumLODLevel: 0
+    streamingMipmapsActive: 0
+    streamingMipmapsAddAllCameras: 1
+    streamingMipmapsMemoryBudget: 512
+    streamingMipmapsRenderersPerFrame: 512
+    streamingMipmapsMaxLevelReduction: 2
+    streamingMipmapsMaxFileIORequests: 1024
+    particleRaycastBudget: 64
+    asyncUploadTimeSlice: 2
+    asyncUploadBufferSize: 16
+    asyncUploadPersistentBuffer: 1
+    resolutionScalingFixedDPIFactor: 1
+    customRenderPipeline: {fileID: 0}
+    excludedTargetPlatforms: []

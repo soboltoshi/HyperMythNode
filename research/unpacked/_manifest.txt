@@ -1,0 +1,19 @@
+C:\hypermythsX\research\HyperFlowAssembly-main.zip -> C:\hypermythsX\research\unpacked\HyperFlowAssembly-main
+C:\hypermythsX\research\hypermyths-super-assembly (1).zip -> C:\hypermythsX\research\unpacked\hypermyths-super-assembly (1)
+C:\hypermythsX\research\hypermyths-super-assembly (2).zip -> C:\hypermythsX\research\unpacked\hypermyths-super-assembly (2)
+C:\hypermythsX\research\hypermyths-super-assembly (3).zip -> C:\hypermythsX\research\unpacked\hypermyths-super-assembly (3)
+C:\hypermythsX\research\hypermyths-super-assembly (4).zip -> C:\hypermythsX\research\unpacked\hypermyths-super-assembly (4)
+C:\hypermythsX\research\hypermyths-super-assembly (5).zip -> C:\hypermythsX\research\unpacked\hypermyths-super-assembly (5)
+C:\hypermythsX\research\hypermyths-super-assembly (6).zip -> C:\hypermythsX\research\unpacked\hypermyths-super-assembly (6)
+C:\hypermythsX\research\hypermyths-super-assembly.zip -> C:\hypermythsX\research\unpacked\hypermyths-super-assembly
+C:\hypermythsX\research\HyperMyths_complete_repo.zip -> C:\hypermythsX\research\unpacked\HyperMyths_complete_repo
+C:\hypermythsX\research\HyperMyths_hyperflow_repo.zip -> C:\hypermythsX\research\unpacked\HyperMyths_hyperflow_repo
+C:\hypermythsX\research\HyperMyths_repo.zip -> C:\hypermythsX\research\unpacked\HyperMyths_repo
+C:\hypermythsX\research\HyperMythX-HoloAssembly.zip -> C:\hypermythsX\research\unpacked\HyperMythX-HoloAssembly
+C:\hypermythsX\research\HyperMythX_Combined_SuperAssembly_Next_Rust_C_Starter.zip -> C:\hypermythsX\research\unpacked\HyperMythX_Combined_SuperAssembly_Next_Rust_C_Starter
+C:\hypermythsX\research\HyperMythX_Combined_SuperAssembly_Starter.zip -> C:\hypermythsX\research\unpacked\HyperMythX_Combined_SuperAssembly_Starter
+C:\hypermythsX\research\interfaceassembly-repo-mirror-pack.zip -> C:\hypermythsX\research\unpacked\interfaceassembly-repo-mirror-pack
+C:\hypermythsX\research\interfaceassembly_assimilation_pack.zip -> C:\hypermythsX\research\unpacked\interfaceassembly_assimilation_pack
+C:\hypermythsX\research\LastExperiments-SuperlativeTruth-Pack.zip -> C:\hypermythsX\research\unpacked\LastExperiments-SuperlativeTruth-Pack
+C:\hypermythsX\research\simd69-super-repo-jarviz-guardrail.zip -> C:\hypermythsX\research\unpacked\simd69-super-repo-jarviz-guardrail
+C:\hypermythsX\research\simd69-super-repo-jarviz.zip -> C:\hypermythsX\research\unpacked\simd69-super-repo-jarviz

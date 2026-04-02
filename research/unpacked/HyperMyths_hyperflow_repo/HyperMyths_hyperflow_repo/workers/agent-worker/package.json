@@ -1,0 +1,1 @@
+{ "name": "agent-worker", "private": true, "scripts": {"dev": "node src/index.js"} }

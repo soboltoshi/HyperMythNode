@@ -1,0 +1,1 @@
+{ "name": "oracle-worker", "private": true, "scripts": {"dev": "node src/index.js"} }

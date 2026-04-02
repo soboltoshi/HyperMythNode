@@ -1,0 +1,31 @@
+{
+  "nodeId": "larpa",
+  "label": "LARPA",
+  "role": "service_seller_node",
+  "domain": "larpa.fun",
+  "primaryWallet": "PENDING_LARPA_SOLANA_ADDRESS",
+  "capabilities": {
+    "compute": [
+      "video_generation",
+      "video_post_processing",
+      "media_compute"
+    ],
+    "services": [
+      "larpa_private_services",
+      "premium_video_compute_sales"
+    ],
+    "settlementAdapters": [
+      {
+        "kind": "larpa_sol",
+        "label": "LARPA (Solana SPL)",
+        "optional": true
+      },
+      {
+        "kind": "larpa_bnb",
+        "label": "LARPA (BNB Chain BEP-20)",
+        "optional": true
+      }
+    ]
+  },
+  "notes": "Extracted as a sovereign private-first service node."
+}

@@ -1,0 +1,23 @@
+{
+  "appId": "tianezha-admin",
+  "label": "Tianezha Admin",
+  "nodeOwner": "tianezha",
+  "authMode": "admin_bypass",
+  "paymentMode": "admin_bypass",
+  "defaultVisibility": "private",
+  "primaryBoxes": [
+    "SessionKernelBox",
+    "GovernanceFlowBox",
+    "PublicReadinessBox",
+    "ArbiterBox",
+    "ModelSovereigntyBox"
+  ],
+  "routeRoots": [
+    "/",
+    "/cockpit",
+    "/governance",
+    "/moderation",
+    "/routing",
+    "/publication"
+  ]
+}

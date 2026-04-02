@@ -1,0 +1,99 @@
+{
+  "name": "QuestXriActions",
+  "maps": [
+    {
+      "name": "XRI LeftHand",
+      "id": "4b0b8050-b2b8-4da7-a17b-6744f8dd0f9d",
+      "actions": [
+        {
+          "name": "Position",
+          "type": "Value",
+          "id": "e5db39f3-a678-4e9f-85d5-8f790f17e58e",
+          "expectedControlType": "Vector3"
+        },
+        {
+          "name": "Rotation",
+          "type": "Value",
+          "id": "b8ec8f5f-4f61-4fb2-b53c-77e2f16ae58f",
+          "expectedControlType": "Quaternion"
+        },
+        {
+          "name": "Trigger",
+          "type": "Button",
+          "id": "a671d004-179f-49e6-a6df-106303850e35",
+          "expectedControlType": "Button"
+        },
+        {
+          "name": "Primary",
+          "type": "Button",
+          "id": "59531664-cbcf-45b8-9a09-1f32d13e8d2c",
+          "expectedControlType": "Button"
+        },
+        {
+          "name": "Secondary",
+          "type": "Button",
+          "id": "4b10d2f2-1bf0-4f20-8d57-3c67cc3ab3a8",
+          "expectedControlType": "Button"
+        }
+      ],
+      "bindings": [
+        { "id": "6b15d6ba-d23b-4f86-9664-7030e7dbec6f", "path": "<XRController>{LeftHand}/devicePosition", "action": "Position" },
+        { "id": "316f8ae6-06cd-4497-9cdb-106b7a335f01", "path": "<XRController>{LeftHand}/deviceRotation", "action": "Rotation" },
+        { "id": "76da7c35-c465-47a5-8f89-24042f5adf18", "path": "<XRController>{LeftHand}/triggerPressed", "action": "Trigger" },
+        { "id": "1f65d8d9-6f7f-4f14-b8f8-a95b28e018f2", "path": "<XRController>{LeftHand}/primaryButton", "action": "Primary" },
+        { "id": "b3f0e8a2-362a-48b8-8a00-0f1130ff778f", "path": "<XRController>{LeftHand}/secondaryButton", "action": "Secondary" }
+      ]
+    },
+    {
+      "name": "XRI RightHand",
+      "id": "7a39a12a-596d-4a59-9a1a-4e67f03a1950",
+      "actions": [
+        {
+          "name": "Position",
+          "type": "Value",
+          "id": "b4ff7398-38a9-4d62-80da-a1efbf54fe28",
+          "expectedControlType": "Vector3"
+        },
+        {
+          "name": "Rotation",
+          "type": "Value",
+          "id": "7315a824-62a7-4439-a4a5-9d0fdf8f2867",
+          "expectedControlType": "Quaternion"
+        },
+        {
+          "name": "Trigger",
+          "type": "Button",
+          "id": "ea17d45a-fab3-4178-b75d-d9d8bb7605a2",
+          "expectedControlType": "Button"
+        },
+        {
+          "name": "Grip",
+          "type": "Button",
+          "id": "2017f4cd-a7cc-44d7-b9a8-2f84f0cbf45f",
+          "expectedControlType": "Button"
+        },
+        {
+          "name": "Primary",
+          "type": "Button",
+          "id": "d7c2f30c-7222-42bb-ad16-ec3f9efb8328",
+          "expectedControlType": "Button"
+        },
+        {
+          "name": "Secondary",
+          "type": "Button",
+          "id": "f3998ccb-f3a0-4dcb-936b-e07eaec8ed07",
+          "expectedControlType": "Button"
+        }
+      ],
+      "bindings": [
+        { "id": "6ad794b9-f89b-403f-8b9b-6693d6c8d3d8", "path": "<XRController>{RightHand}/devicePosition", "action": "Position" },
+        { "id": "5bd37044-f478-4706-b772-e1371028a499", "path": "<XRController>{RightHand}/deviceRotation", "action": "Rotation" },
+        { "id": "7ef74d6d-722f-4450-ab45-fe4676d79056", "path": "<XRController>{RightHand}/triggerPressed", "action": "Trigger" },
+        { "id": "75f5fca0-cf2b-430b-9da8-8f20ed2f8ee3", "path": "<XRController>{RightHand}/gripPressed", "action": "Grip" },
+        { "id": "78ef50e2-bc01-4d53-b98e-bbb7d64dfde3", "path": "<XRController>{RightHand}/primaryButton", "action": "Primary" },
+        { "id": "57f3974f-e56c-4cb6-a72f-01d47b24113c", "path": "<XRController>{RightHand}/secondaryButton", "action": "Secondary" }
+      ]
+    }
+  ],
+  "controlSchemes": []
+}

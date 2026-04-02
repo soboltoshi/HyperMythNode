@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/x-adapter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build x-adapter')\"",
+    "test": "node -e \"console.log('test x-adapter')\"",
+    "lint": "node -e \"console.log('lint x-adapter')\"",
+    "typecheck": "node -e \"console.log('typecheck x-adapter')\""
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "sessionmint-interfaceassembly",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@10.9.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/adapters/*",
+    "nodes/*",
+    "shared/mesh-contracts"
+  ],
+  "scripts": {
+    "sync:surfaces": "node scripts/sync-surface-artifacts.mjs",
+    "validate": "node scripts/validate-assembly.mjs",
+    "overview": "node scripts/validate-assembly.mjs --summary",
+    "test": "node --test tests/assembly-validation.test.mjs"
+  }
+}

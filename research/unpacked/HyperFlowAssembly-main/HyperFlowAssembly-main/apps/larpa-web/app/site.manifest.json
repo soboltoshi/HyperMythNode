@@ -1,0 +1,25 @@
+{
+  "appId": "larpa-web",
+  "label": "LARPA",
+  "nodeOwner": "larpa",
+  "authMode": "account_first",
+  "paymentMode": "subscription_ready",
+  "defaultVisibility": "private",
+  "primaryBoxes": [
+    "MediaSurfaceBox",
+    "GameplayBox",
+    "WorldDirectoryBox",
+    "WorldSpawnBox"
+  ],
+  "routeRoots": [
+    "/",
+    "/gift-family",
+    "/music-remakes",
+    "/custom",
+    "/reviews",
+    "/cockpit",
+    "/login",
+    "/project/[id]",
+    "/generator/[slug]"
+  ]
+}

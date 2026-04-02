@@ -1,0 +1,21 @@
+| Interface | Owner | Version | Status |
+|---|---|---|---|
+| ClusterIdentityInterface | IdentityClusterBox | v1 | active |
+| GovernanceFlowInterface | GovernanceFlowBox | v1 | active |
+| TreasuryReserveInterface | TreasuryBox | v1 | active |
+| ProtectedEpochInterface | ProtectionBox | v1 | active |
+| TianezhaDelegationInterface | TianezhaSuperBrainBox | v1 | active |
+| GameplaySeasonInterface | GameplayBox | v1 | active |
+| HyperliquidRedemptionInterface | HyperliquidConvergenceBox | v1 | active |
+| MediaManifestInterface | MediaSurfaceBox | v1 | active |
+| UserModelSovereigntyInterface | ModelSovereigntyBox | v1 | active |
+| PrivateBrainDeploymentInterface | PrivateSuperBrainBox | v1 | active |
+| SuperBrainRoutingInterface | TianezhaSuperBrainBox | v1 | active |
+| PrivateInstructionInterface | PrivateSuperBrainBox | v1 | active |
+| SubAgentTaskInterface | AgentMeshBox | v1 | active |
+| VideoGenerationInterface | MediaSurfaceBox | v1 | active |
+| LiveWorldPresenceInterface | DesktopWorldBox | v1 | active |
+| ComputePriceIndexInterface | ComputationMarketBox | v1 | active |
+| UsefulWorkProofInterface | CancerHawkRouterBox | v1 | active |
+| WorldSpawnInterface | WorldSpawnBox | v1 | active |
+| WorldDirectoryInterface | WorldDirectoryBox | v1 | active |

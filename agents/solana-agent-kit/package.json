@@ -1,0 +1,22 @@
+{
+  "name": "@last-experiments/solana-agent-kit",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "status": "node src/index.mjs status",
+    "serve": "node src/index.mjs serve",
+    "mcp": "node src/index.mjs mcp"
+  },
+  "dependencies": {
+    "@solana-agent-kit/adapter-mcp": "2.0.7",
+    "@solana-agent-kit/plugin-blinks": "2.0.5",
+    "@solana-agent-kit/plugin-defi": "2.0.8",
+    "@solana-agent-kit/plugin-misc": "2.0.6",
+    "@solana-agent-kit/plugin-nft": "2.0.7",
+    "@solana-agent-kit/plugin-token": "2.0.9",
+    "@solana/web3.js": "1.98.2",
+    "bs58": "6.0.0",
+    "solana-agent-kit": "2.0.10"
+  }
+}

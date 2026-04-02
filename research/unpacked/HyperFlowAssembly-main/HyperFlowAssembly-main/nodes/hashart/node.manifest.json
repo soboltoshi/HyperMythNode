@@ -1,0 +1,28 @@
+{
+  "nodeId": "hashart",
+  "label": "HASHART",
+  "role": "service_seller_node",
+  "domain": "hashart.fun",
+  "primaryWallet": "PENDING_HASHART_SOLANA_ADDRESS",
+  "capabilities": {
+    "compute": [
+      "image_generation",
+      "image_editing",
+      "reference_extraction",
+      "research_compute"
+    ],
+    "services": [
+      "hashart_public_services",
+      "art_pipeline_sales",
+      "research_compute_sales"
+    ],
+    "settlementAdapters": [
+      {
+        "kind": "solana_memo",
+        "label": "Solana memo settlement",
+        "optional": true
+      }
+    ]
+  },
+  "notes": "Public-first discovery node normalized as a sovereign peer."
+}

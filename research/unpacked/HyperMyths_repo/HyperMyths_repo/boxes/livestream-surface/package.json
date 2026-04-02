@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/livestream-surface",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build livestream-surface')\"",
+    "test": "node -e \"console.log('test livestream-surface')\"",
+    "lint": "node -e \"console.log('lint livestream-surface')\"",
+    "typecheck": "node -e \"console.log('typecheck livestream-surface')\""
+  }
+}

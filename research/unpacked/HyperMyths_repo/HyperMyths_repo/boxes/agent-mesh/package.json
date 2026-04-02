@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/agent-mesh",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build agent-mesh')\"",
+    "test": "node -e \"console.log('test agent-mesh')\"",
+    "lint": "node -e \"console.log('lint agent-mesh')\"",
+    "typecheck": "node -e \"console.log('typecheck agent-mesh')\""
+  }
+}

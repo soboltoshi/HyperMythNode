@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": false,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@hypermyths/protocol": ["packages/protocol/src/index.ts"],
+      "@hypermyths/config": ["packages/config/src/index.ts"],
+      "@hypermyths/store": ["packages/store/src/index.ts"],
+      "@hypermyths/core": ["packages/core/src/index.ts"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/prediction-engine",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build prediction-engine')\"",
+    "test": "node -e \"console.log('test prediction-engine')\"",
+    "lint": "node -e \"console.log('lint prediction-engine')\"",
+    "typecheck": "node -e \"console.log('typecheck prediction-engine')\""
+  }
+}

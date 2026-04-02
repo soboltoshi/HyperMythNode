@@ -1,0 +1,21 @@
+{
+  "name": "hypermyths-monorepo",
+  "private": true,
+  "packageManager": "pnpm@9.12.3",
+  "scripts": {
+    "dev": "pnpm --filter @hypermyths/web dev",
+    "dev:web": "pnpm --filter @hypermyths/web dev",
+    "dev:workers": "turbo run dev --parallel --filter=@hypermyths/agent-worker --filter=@hypermyths/hashmedia-worker --filter=@hypermyths/indexer-worker",
+    "build": "pnpm --filter @hypermyths/web build",
+    "start": "pnpm --filter @hypermyths/web start",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "turbo": "^2.5.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  }
+}

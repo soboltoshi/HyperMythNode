@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "allowed_trader_addresses": [
+    "TraderAlpha111111111111111111111111111111111",
+    "TraderBeta1111111111111111111111111111111111",
+    "TraderGamma111111111111111111111111111111111"
+  ],
+  "allowed_node_operator_addresses": [
+    "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb4g7TgKqX",
+    "ResearchNodePrivate11111111111111111111111111",
+    "RenderNodePublic11111111111111111111111111111"
+  ]
+}

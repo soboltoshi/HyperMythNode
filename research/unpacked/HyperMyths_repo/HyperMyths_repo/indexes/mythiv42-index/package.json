@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/mythiv42-index",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build mythiv42-index')\"",
+    "test": "node -e \"console.log('test mythiv42-index')\"",
+    "lint": "node -e \"console.log('lint mythiv42-index')\"",
+    "typecheck": "node -e \"console.log('typecheck mythiv42-index')\""
+  }
+}

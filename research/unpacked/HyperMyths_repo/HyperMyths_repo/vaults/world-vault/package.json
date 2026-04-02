@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/world-vault",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build world-vault')\"",
+    "test": "node -e \"console.log('test world-vault')\"",
+    "lint": "node -e \"console.log('lint world-vault')\"",
+    "typecheck": "node -e \"console.log('typecheck world-vault')\""
+  }
+}

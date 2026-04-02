@@ -1,0 +1,13 @@
+{
+  "name": "@last-experiments/claw-shell",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.mjs status",
+    "status": "node src/index.mjs status",
+    "watch": "node src/index.mjs watch",
+    "brain": "node src/index.mjs brain",
+    "open:hypercinema": "node src/index.mjs open-hypercinema"
+  }
+}

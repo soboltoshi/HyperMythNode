@@ -1,0 +1,186 @@
+{
+  "name": "Interface Assembly Skill Hub",
+  "version": 3,
+  "summary": "Registry of first-party Interface Assembly box agents and approved external adapters. Markdown-first, beginner-friendly, and centered on clear ownership boundaries.",
+  "howToAdd": "Open a proposal in world/proposals/. Ask the WorldBuilder to classify the work. If approved, add or amend the clause, register the block in world/registries/, add the hub card, and record the accepted state through the Archivist.",
+  "entries": [
+    {
+      "id": "archivist",
+      "repo": "interfaceassembly",
+      "sourceUrl": null,
+      "vendorPath": null,
+      "clauseBox": "ArchivistBox",
+      "skillCard": "hub/archivist.md",
+      "class": "governance",
+      "ownerBox": "ArchivistBox",
+      "scope": "amendments, gistbook snapshots, registries, merkle state",
+      "dependsOn": [
+        "WorldBuilderBox",
+        "BlockProposalEnvelope",
+        "CrossBlockChangeContract",
+        "ReleaseGateContract"
+      ],
+      "reportsTo": [
+        "WorldBuilderBox"
+      ],
+      "publicReady": true,
+      "status": "first_party",
+      "notes": "Records accepted change, preserves history, and keeps the world legible."
+    },
+    {
+      "id": "arbiter",
+      "repo": "interfaceassembly",
+      "sourceUrl": null,
+      "vendorPath": null,
+      "clauseBox": "ArbiterBox",
+      "skillCard": "hub/arbiter.md",
+      "class": "governance",
+      "ownerBox": "ArbiterBox",
+      "scope": "cross-block disputes, ownership conflicts, interface contradictions",
+      "dependsOn": [
+        "CrossBlockChangeContract",
+        "BlockProposalEnvelope",
+        "G0DM0D3Box"
+      ],
+      "reportsTo": [
+        "WorldBuilderBox"
+      ],
+      "publicReady": true,
+      "status": "first_party",
+      "notes": "Resolves contradictions without letting one block mutate another unilaterally."
+    },
+    {
+      "id": "worldbuilder",
+      "repo": "interfaceassembly",
+      "sourceUrl": null,
+      "vendorPath": null,
+      "clauseBox": "WorldBuilderBox",
+      "skillCard": "hub/worldbuilder.md",
+      "class": "governance",
+      "ownerBox": "WorldBuilderBox",
+      "scope": "classification, role decisions, world coherence, release direction",
+      "dependsOn": [
+        "ArchivistBox",
+        "ArbiterBox",
+        "BlockBuilderBox",
+        "InterfaceRegistryBox",
+        "PublicReadinessBox"
+      ],
+      "reportsTo": [],
+      "publicReady": true,
+      "status": "first_party",
+      "notes": "Classifies new work and decides what belongs in the world."
+    },
+    {
+      "id": "block-builder",
+      "repo": "interfaceassembly",
+      "sourceUrl": null,
+      "vendorPath": null,
+      "clauseBox": "BlockBuilderBox",
+      "skillCard": "hub/block-builder.md",
+      "class": "builder",
+      "ownerBox": "BlockBuilderBox",
+      "scope": "one approved component, feature, or imported repo block at a time",
+      "dependsOn": [
+        "BlockProposalEnvelope",
+        "CrossBlockChangeContract",
+        "WorldBuilderBox",
+        "ArchivistBox",
+        "ArbiterBox"
+      ],
+      "reportsTo": [
+        "WorldBuilderBox",
+        "ArchivistBox"
+      ],
+      "publicReady": true,
+      "status": "first_party",
+      "notes": "Builds only inside its assigned block, reports back, and escalates boundary changes."
+    },
+    {
+      "id": "interface-registry",
+      "repo": "interfaceassembly",
+      "sourceUrl": null,
+      "vendorPath": null,
+      "clauseBox": "InterfaceRegistryBox",
+      "skillCard": "hub/interface-registry.md",
+      "class": "shared_contracts",
+      "ownerBox": "InterfaceRegistryBox",
+      "scope": "shared interfaces, adapter contracts, reusable connection surfaces",
+      "dependsOn": [
+        "WorldBuilderBox",
+        "ArchivistBox"
+      ],
+      "reportsTo": [
+        "WorldBuilderBox"
+      ],
+      "publicReady": true,
+      "status": "first_party",
+      "notes": "Holds neutral contracts so blocks can depend on shared surfaces without copying implementations."
+    },
+    {
+      "id": "public-readiness",
+      "repo": "interfaceassembly",
+      "sourceUrl": null,
+      "vendorPath": null,
+      "clauseBox": "PublicReadinessBox",
+      "skillCard": "hub/public-readiness.md",
+      "class": "release_gate",
+      "ownerBox": "PublicReadinessBox",
+      "scope": "public packaging, onboarding clarity, adoption checks, release blocking issues",
+      "dependsOn": [
+        "ReleaseGateContract",
+        "WorldBuilderBox",
+        "ArchivistBox"
+      ],
+      "reportsTo": [
+        "WorldBuilderBox"
+      ],
+      "publicReady": true,
+      "status": "first_party",
+      "notes": "Makes sure the assembly can be handed to outsiders without private context."
+    },
+    {
+      "id": "elder-plinius-g0dm0d3",
+      "repo": "elder-plinius/G0DM0D3",
+      "sourceUrl": "https://github.com/elder-plinius/G0DM0D3",
+      "vendorPath": "agents/vendor/g0dm0d3-upstream",
+      "clauseBox": "G0DM0D3Box",
+      "skillCard": "hub/g0dm0d3.md",
+      "class": "evaluator",
+      "ownerBox": "G0DM0D3Box",
+      "scope": "parallel model comparison and evaluation",
+      "dependsOn": [
+        "InterfaceRegistryBox"
+      ],
+      "reportsTo": [
+        "ArbiterBox",
+        "WorldBuilderBox"
+      ],
+      "publicReady": true,
+      "status": "vendored",
+      "notes": "External evaluator adapter used when the assembly needs multi-model comparison before a governance decision."
+    },
+    {
+      "id": "nousresearch-hermes-agent",
+      "repo": "nousresearch/hermes-agent",
+      "sourceUrl": "https://github.com/nousresearch/hermes-agent",
+      "vendorPath": "agents/vendor/hermes-agent",
+      "clauseBox": "HermesAgentBox",
+      "skillCard": "hub/hermes-agent.md",
+      "class": "autonomous_agent",
+      "ownerBox": "HermesAgentBox",
+      "scope": "memory, planning, autonomous execution support",
+      "dependsOn": [
+        "InterfaceRegistryBox"
+      ],
+      "reportsTo": [
+        "BlockBuilderBox",
+        "WorldBuilderBox",
+        "ArchivistBox"
+      ],
+      "publicReady": true,
+      "status": "vendored",
+      "notes": "External autonomous agent adapter that can execute work inside approved boundaries while preserving the assembly contract."
+    }
+  ]
+}

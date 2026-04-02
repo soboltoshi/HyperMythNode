@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/jupiter-adapter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build jupiter-adapter')\"",
+    "test": "node -e \"console.log('test jupiter-adapter')\"",
+    "lint": "node -e \"console.log('lint jupiter-adapter')\"",
+    "typecheck": "node -e \"console.log('typecheck jupiter-adapter')\""
+  }
+}

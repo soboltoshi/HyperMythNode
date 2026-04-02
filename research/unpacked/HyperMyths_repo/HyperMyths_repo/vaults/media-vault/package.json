@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/media-vault",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build media-vault')\"",
+    "test": "node -e \"console.log('test media-vault')\"",
+    "lint": "node -e \"console.log('lint media-vault')\"",
+    "typecheck": "node -e \"console.log('typecheck media-vault')\""
+  }
+}

@@ -1,0 +1,14 @@
+node_modules/
+.next/
+dist/
+coverage/
+build/
+target/
+.tmp_interfaceassembly/
+.venv-hermes/
+.claude/
+$dlDir/
+agents/vendor/claw-code-parity/
+*.log
+.DS_Store
+Thumbs.db

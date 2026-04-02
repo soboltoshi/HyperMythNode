@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/mythiv",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build mythiv')\"",
+    "test": "node -e \"console.log('test mythiv')\"",
+    "lint": "node -e \"console.log('lint mythiv')\"",
+    "typecheck": "node -e \"console.log('typecheck mythiv')\""
+  }
+}

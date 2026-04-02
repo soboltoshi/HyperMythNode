@@ -1,0 +1,20 @@
+{
+  "name": "hypermythx-combined-superassembly-starter",
+  "private": true,
+  "version": "0.2.0",
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "pnpm --filter @hypermythx/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm --filter @hypermythx/web lint",
+    "typecheck": "pnpm --filter @hypermythx/web typecheck",
+    "start": "pnpm --filter @hypermythx/web start",
+    "start:supernode": "node apps/supernode/index.mjs",
+    "start:vr": "node apps/vr-superbrain/index.mjs",
+    "build:rust": "cargo build --manifest-path native/supernode-rs/Cargo.toml",
+    "run:rust": "cargo run --manifest-path native/supernode-rs/Cargo.toml",
+    "build:c": "cmake -S native/c-runtime -B native/c-runtime/build && cmake --build native/c-runtime/build",
+    "run:c": "./native/c-runtime/build/asimog_runtime",
+    "smoke:test": "node scripts/smoke-test.mjs"
+  }
+}

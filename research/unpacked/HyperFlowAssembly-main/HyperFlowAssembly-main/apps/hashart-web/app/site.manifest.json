@@ -1,0 +1,25 @@
+{
+  "appId": "hashart-web",
+  "label": "HASHART",
+  "nodeOwner": "hashart",
+  "authMode": "wallet_first",
+  "paymentMode": "crypto_only",
+  "defaultVisibility": "public",
+  "primaryBoxes": [
+    "MediaSurfaceBox",
+    "GameplayBox",
+    "WorldDirectoryBox",
+    "AgentMeshBox"
+  ],
+  "routeRoots": [
+    "/",
+    "/trending",
+    "/shady",
+    "/create",
+    "/gallery",
+    "/cockpit",
+    "/generator/[slug]",
+    "/video/[id]",
+    "/reviews/[id]"
+  ]
+}

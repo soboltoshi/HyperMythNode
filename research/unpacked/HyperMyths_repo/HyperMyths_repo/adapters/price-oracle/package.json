@@ -1,0 +1,11 @@
+{
+  "name": "@hypermyths/price-oracle-adapter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('build price-oracle-adapter')\"",
+    "test": "node -e \"console.log('test price-oracle-adapter')\"",
+    "lint": "node -e \"console.log('lint price-oracle-adapter')\"",
+    "typecheck": "node -e \"console.log('typecheck price-oracle-adapter')\""
+  }
+}

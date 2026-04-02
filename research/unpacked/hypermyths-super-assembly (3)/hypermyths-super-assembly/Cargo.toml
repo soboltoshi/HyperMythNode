@@ -1,0 +1,26 @@
+[workspace]
+members = [
+  "crates/superbrain-core",
+  "crates/superbrain-cli",
+  "crates/superbrain-tui",
+  "crates/superbrain-api",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+version = "0.3.0"
+authors = ["Ra + OpenAI scaffold"]
+
+[workspace.dependencies]
+anyhow = "1"
+axum = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ratatui = "0.29"
+crossterm = "0.28"
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["cors"] }

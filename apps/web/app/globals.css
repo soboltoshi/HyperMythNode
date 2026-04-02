@@ -1,0 +1,438 @@
+:root {
+  --bg: #0f1115;
+  --bg-2: #171b22;
+  --panel: rgba(20, 26, 36, 0.82);
+  --line: rgba(162, 188, 222, 0.18);
+  --text: #edf2ff;
+  --muted: #a9b4cb;
+  --accent: #8ee8c9;
+  --accent-2: #ffd08b;
+  --danger: #ff8c8c;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  --font-body: "Aptos", "Segoe UI", "Trebuchet MS", sans-serif;
+  --font-display: "Georgia", "Times New Roman", serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top, rgba(142, 232, 201, 0.12), transparent 32%),
+    radial-gradient(circle at 80% 20%, rgba(255, 208, 139, 0.12), transparent 24%),
+    linear-gradient(180deg, #0d1015 0%, #151a21 100%);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+.shell {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0 72px;
+}
+
+.shellNarrow {
+  width: min(860px, calc(100% - 32px));
+}
+
+.hero {
+  padding: 20px 0 32px;
+}
+
+.eyebrow,
+.panelKicker,
+.statusPill,
+.statusStrip span {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.04;
+}
+
+h1 {
+  font-size: clamp(2.6rem, 6vw, 5.4rem);
+  max-width: 12ch;
+}
+
+h2 {
+  font-size: 1.4rem;
+}
+
+.lede,
+.panel p,
+.notes p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.lede {
+  max-width: 62ch;
+  margin-top: 18px;
+}
+
+.grid,
+.stack {
+  display: grid;
+  gap: 18px;
+}
+
+.grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.panel {
+  display: block;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+}
+
+.panel:hover {
+  border-color: rgba(142, 232, 201, 0.34);
+  transform: translateY(-2px);
+  transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.statusStrip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.statusStrip div {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.statusStrip strong {
+  display: block;
+  margin-top: 10px;
+}
+
+.inlineRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action {
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #111;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.statusPill {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.cameraFrame {
+  width: 100%;
+  min-height: 320px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(135deg, rgba(142, 232, 201, 0.08), rgba(255, 208, 139, 0.08)),
+    #090b0f;
+  object-fit: cover;
+}
+
+.errorText {
+  color: var(--danger);
+}
+
+.actionGhost {
+  padding: 12px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.webcamShell {
+  padding-top: 36px;
+}
+
+.webcamHero,
+.webcamWorkbench {
+  display: grid;
+  gap: 18px;
+}
+
+.webcamHero {
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.8fr);
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+.webcamMetrics {
+  display: grid;
+  gap: 14px;
+  min-height: 100%;
+  background:
+    linear-gradient(180deg, rgba(19, 25, 34, 0.92), rgba(12, 16, 22, 0.9)),
+    radial-gradient(circle at top right, rgba(255, 208, 139, 0.2), transparent 48%);
+}
+
+.webcamMetrics strong {
+  display: block;
+  margin-top: 8px;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+}
+
+.webcamWorkbench {
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.85fr);
+  align-items: start;
+}
+
+.webcamViewport {
+  padding: 14px;
+  overflow: hidden;
+}
+
+.webcamComposite {
+  position: relative;
+  overflow: hidden;
+  min-height: 360px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top, rgba(142, 232, 201, 0.12), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(255, 208, 139, 0.12), transparent 24%),
+    #090b10;
+}
+
+.webcamVideo,
+.webcamOverlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.webcamOverlay {
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.webcamScrim {
+  position: absolute;
+  inset: auto 18px 18px 18px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 10, 14, 0.8);
+  backdrop-filter: blur(14px);
+}
+
+.webcamScrim strong {
+  display: block;
+  margin-top: 8px;
+  max-width: 32ch;
+  line-height: 1.4;
+}
+
+.webcamNotes {
+  background:
+    linear-gradient(180deg, rgba(19, 25, 34, 0.92), rgba(12, 16, 22, 0.9)),
+    radial-gradient(circle at bottom left, rgba(142, 232, 201, 0.16), transparent 44%);
+}
+
+.operatorShell {
+  padding-top: 36px;
+}
+
+.operatorHero,
+.operatorGrid {
+  display: grid;
+  gap: 18px;
+}
+
+.operatorHero {
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+  align-items: start;
+}
+
+.operatorAuth {
+  background:
+    linear-gradient(180deg, rgba(19, 25, 34, 0.94), rgba(12, 16, 22, 0.92)),
+    radial-gradient(circle at top right, rgba(142, 232, 201, 0.18), transparent 42%);
+}
+
+.operatorGrid {
+  grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.75fr);
+  align-items: start;
+  margin-top: 18px;
+}
+
+.operatorComposer {
+  background:
+    linear-gradient(180deg, rgba(17, 22, 31, 0.96), rgba(12, 16, 22, 0.94)),
+    radial-gradient(circle at top left, rgba(255, 208, 139, 0.14), transparent 45%);
+}
+
+.operatorTextarea {
+  min-height: 220px;
+}
+
+.operatorResult {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.operatorResult pre,
+.operatorStatusJson {
+  margin: 0;
+  padding: 14px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.operatorStatus {
+  background:
+    linear-gradient(180deg, rgba(19, 25, 34, 0.94), rgba(12, 16, 22, 0.92)),
+    radial-gradient(circle at bottom right, rgba(255, 208, 139, 0.16), transparent 44%);
+}
+
+.operatorStatusCard {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.operatorStatusJson {
+  min-height: 280px;
+  margin-top: 16px;
+  font-size: 0.78rem;
+}
+
+.statusDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.statusDotOnline {
+  background: #8ee8c9;
+  box-shadow: 0 0 0 4px rgba(142, 232, 201, 0.16);
+}
+
+.statusDotOffline {
+  background: #ff8c8c;
+  box-shadow: 0 0 0 4px rgba(255, 140, 140, 0.12);
+}
+
+.noteText {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.formLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.formInput,
+.formSelect,
+.formTextarea {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 12px;
+  outline: none;
+  width: 100%;
+  resize: vertical;
+}
+
+.formInput:focus,
+.formSelect:focus,
+.formTextarea:focus {
+  border-color: rgba(142, 232, 201, 0.4);
+}
+
+.formSelect option {
+  background: #171b22;
+  color: var(--text);
+}
+
+@media (max-width: 920px) {
+  .webcamHero,
+  .webcamWorkbench,
+  .operatorHero,
+  .operatorGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .shell,
+  .shellNarrow {
+    width: min(100% - 24px, 100%);
+    padding-top: 32px;
+  }
+
+  .panel {
+    border-radius: 18px;
+  }
+
+  .webcamComposite {
+    min-height: 300px;
+    border-radius: 20px;
+  }
+}

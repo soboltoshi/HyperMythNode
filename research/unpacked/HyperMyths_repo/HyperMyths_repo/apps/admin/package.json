@@ -1,0 +1,11 @@
+{
+  "name": "admin",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log('admin stub')\"",
+    "build": "node -e \"console.log('build admin stub')\"",
+    "test": "node -e \"console.log('test admin stub')\"",
+    "lint": "node -e \"console.log('lint admin stub')\"",
+    "typecheck": "node -e \"console.log('typecheck admin stub')\""
+  }
+}

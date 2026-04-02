@@ -1,0 +1,10 @@
+{
+  "name": "hypermyths",
+  "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "echo Run targeted dev commands, e.g. pnpm --filter web dev",
+    "typecheck": "echo add workspace typecheck later",
+    "test": "echo add workspace tests later"
+  }
+}

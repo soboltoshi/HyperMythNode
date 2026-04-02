@@ -1,0 +1,33 @@
+{
+  "market_id": "mythiv-local-market",
+  "quote_currency": "COMPUTE_CREDIT",
+  "nodes": [
+    {
+      "id": "node-alpha",
+      "role": "builder",
+      "available_minutes": 180,
+      "price_floor": 0.28,
+      "reliability": 0.97,
+      "trust": "private"
+    },
+    {
+      "id": "node-beta",
+      "role": "solver",
+      "available_minutes": 240,
+      "price_floor": 0.22,
+      "reliability": 0.91,
+      "trust": "public"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "job-001",
+      "owner": "agent-mesh",
+      "role": "builder",
+      "minutes": 45,
+      "budget": 18.0,
+      "urgency": "high",
+      "trust": "private"
+    }
+  ]
+}
