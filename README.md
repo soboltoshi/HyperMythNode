@@ -17,6 +17,7 @@ Canonical stack:
 - Lua-style creator shell
 - `claw-code-adapter` desktop shell wrapper
 - `claw-companion` desktop private brain / voice companion
+- Contactway native adapter path (kernel Rust endpoints + companion/web/VR bridge)
 - `solana-agent-kit` shared blockchain capability bridge for all agents
 - Next.js operator and webcam surface
 - Hermes-agent role mesh
@@ -50,3 +51,14 @@ Runtime notes:
 - Desktop companion is runnable at `desktop/claw-companion`:
   - `npm --workspace desktop/claw-companion run serve`
   - `npm --workspace desktop/claw-companion run brain -- "your prompt"`
+- Contactway adapter status/control is exposed at:
+  - kernel: `GET/POST /api/contactway/*`
+  - companion proxy: `GET/POST /contactway/*`
+  - web desktop GUI: `apps/web/app/operator/page.tsx`
+- Native adoption analysis is documented in `docs/contactway-native-adoption.md`.
+
+Quest on-device networking (LAN)
+
+- Quest cannot reach `127.0.0.1`; set `KERNEL_BASE_URL` and `NEXT_PUBLIC_KERNEL_URL` to your host LAN IP (for example, `http://192.168.1.50:8787`).
+- In Unity, set `KernelClient` base URL to the same LAN value or push `PlayerPrefs` key `lastexperiments.kernel.url`.
+- For tethered debugging you can `adb reverse tcp:8787 tcp:8787` so the headset hits your desktop kernel.

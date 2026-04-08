@@ -9,6 +9,9 @@ Desktop private-brain companion for the VR shell.
 - uses a local Whisper-style backend by default for Quest voice transcription
 - forwards recognized voice commands into the kernel as `quest3.voice.command`
 - creates Hermes tasks from VR-originated instructions
+- requests Cami intent proposals from Hermes (`/cami/intent`)
+- confirms cinema proposals and forwards them to kernel + Hermes dispatch (`/proposal/confirm`)
+- proxies native contactway controls to kernel (`/contactway/status`, `/contactway/connect`, `/contactway/disconnect`, `/contactway/intent`)
 
 ## Run
 

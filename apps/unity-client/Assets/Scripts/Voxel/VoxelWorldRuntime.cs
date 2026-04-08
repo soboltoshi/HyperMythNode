@@ -105,9 +105,69 @@ namespace LastExperiments.Voxel
 
             seaLevel = Mathf.Clamp(worldSizeY / 2, 2, worldSizeY - 3);
             blocks = new VoxelBlockType[worldSizeX, worldSizeY, worldSizeZ];
+            ConfigureWorldOffset();
 
             GenerateTerrainData();
             RefreshAllVisuals();
+        }
+
+        public void ConfigureWorldShape(int sizeX, int sizeY, int sizeZ, bool regenerate = true)
+        {
+            worldSizeX = Mathf.Max(8, sizeX);
+            worldSizeY = Mathf.Max(8, sizeY);
+            worldSizeZ = Mathf.Max(8, sizeZ);
+            ConfigureWorldOffset();
+
+            if (regenerate)
+            {
+                GenerateWorld();
+            }
+        }
+
+        public void ApplyGeneratedBlocks(VoxelBlockType[,,] generatedBlocks, int? seaLevelOverride = null)
+        {
+            if (generatedBlocks == null)
+            {
+                return;
+            }
+
+            worldSizeX = Mathf.Max(8, generatedBlocks.GetLength(0));
+            worldSizeY = Mathf.Max(8, generatedBlocks.GetLength(1));
+            worldSizeZ = Mathf.Max(8, generatedBlocks.GetLength(2));
+
+            blocks = generatedBlocks;
+            seaLevel = Mathf.Clamp(
+                seaLevelOverride ?? (worldSizeY / 2),
+                2,
+                Mathf.Max(3, worldSizeY - 3));
+
+            ConfigureWorldOffset();
+            RefreshAllVisuals();
+        }
+
+        public int CountNonEmptyBlocks()
+        {
+            if (blocks == null)
+            {
+                return 0;
+            }
+
+            var count = 0;
+            for (var x = 0; x < worldSizeX; x++)
+            {
+                for (var y = 0; y < worldSizeY; y++)
+                {
+                    for (var z = 0; z < worldSizeZ; z++)
+                    {
+                        if (blocks[x, y, z] != VoxelBlockType.Empty)
+                        {
+                            count++;
+                        }
+                    }
+                }
+            }
+
+            return count;
         }
 
         public bool InBounds(Vector3Int position)

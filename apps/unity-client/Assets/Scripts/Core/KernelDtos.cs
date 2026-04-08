@@ -18,6 +18,19 @@ namespace LastExperiments.Core
         public int active_agents;
         public string release_focus;
         public KernelSurfaces surfaces;
+        public KernelExperimentRecord[] experiments;
+        public KernelExperimentRecord LastExperiment;
+        public KernelAgentResult[] agent_results;
+    }
+
+    [Serializable]
+    public class KernelAgentResult
+    {
+        public string task_id;
+        public string role;
+        public string result_type;
+        public string data;
+        public string timestamp;
     }
 
     [Serializable]
@@ -36,6 +49,16 @@ namespace LastExperiments.Core
     }
 
     [Serializable]
+    public class KernelExperimentRecord
+    {
+        public string experiment_id;
+        public string experiment_type;
+        public string token_address;
+        public string status;
+        public string video_url;
+    }
+
+    [Serializable]
     public class KernelCommandPayload
     {
         public string surface;
@@ -49,6 +72,16 @@ namespace LastExperiments.Core
         public float confidence;
         public string source;
         public string route;
+        public string channel;
+        public string pattern;
+        public float intensity;
+        public int duration_ms;
+        public string token_address;
+        public string chain;
+        public string package_type;
+        public string style_preset;
+        public string creative_prompt;
+        public string payment_route;
     }
 
     [Serializable]

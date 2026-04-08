@@ -54,6 +54,10 @@ async function fetchJson(baseUrl, route, init) {
   return body;
 }
 
+async function proxyKernelJson(route, init) {
+  return fetchJson(kernelBaseUrl, route, init);
+}
+
 function routeWithClawCode(prompt) {
   if (!fs.existsSync(clawCodeParityRoot)) {
     return {
@@ -112,6 +116,107 @@ async function createHermesTask({ prompt, source, confidence, route }) {
       },
     }),
   });
+}
+
+async function classifyCamiIntent(transcript) {
+  return fetchJson(hermesBaseUrl, "/cami/intent", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ transcript }),
+  });
+}
+
+function normalizeCinemaProposal(rawProposal) {
+  const proposal = rawProposal || {};
+  const type = String(proposal.type || "").trim();
+  if (type !== "CreateCinemaExperiment") {
+    throw new Error("unsupported proposal type");
+  }
+
+  const tokenAddress = String(proposal.token_address || proposal.tokenAddress || "").trim();
+  if (!tokenAddress) {
+    throw new Error("CreateCinemaExperiment requires token_address");
+  }
+
+  return {
+    type: "CreateCinemaExperiment",
+    token_address: tokenAddress,
+    chain: String(proposal.chain || "auto").trim() || "auto",
+    package_type:
+      String(proposal.package_type || proposal.packageType || process.env.HYPERCINEMA_DEFAULT_DURATION || "1d")
+        .toLowerCase() === "2d"
+        ? "2d"
+        : "1d",
+    style_preset: String(
+      proposal.style_preset || proposal.stylePreset || process.env.HYPERCINEMA_DEFAULT_STYLE || "hyperflow_assembly"
+    ).trim(),
+    creative_prompt: String(proposal.creative_prompt || proposal.creativePrompt || "").trim(),
+    payment_route:
+      String(proposal.payment_route || proposal.paymentRoute || process.env.HYPERCINEMA_PAYMENT_ROUTE || "sol_direct")
+        .toLowerCase() === "x402_usdc"
+        ? "x402_usdc"
+        : "sol_direct",
+  };
+}
+
+async function submitCinemaProposal({ proposal, source = "quest3", route = "voice-confirmed" }) {
+  const normalized = normalizeCinemaProposal(proposal);
+
+  const kernelReceipt = await fetchJson(kernelBaseUrl, "/command", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      kind: "CreateCinemaExperiment",
+      payload: {
+        surface: "quest3",
+        source,
+        route,
+        ...normalized,
+      },
+    }),
+  });
+
+  const experimentId = String(kernelReceipt?.receipt || "").trim();
+  const cinemaDispatch = await fetchJson(hermesBaseUrl, "/hypercinema/dispatch", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      ...normalized,
+      experiment_id: experimentId,
+    }),
+  });
+
+  const readyPayload = {
+    surface: "quest3",
+    source,
+    route,
+    experiment_id: experimentId,
+    token_address: normalized.token_address,
+    job_id: String(cinemaDispatch?.jobId || "").trim(),
+    status: String(cinemaDispatch?.status || "complete").trim(),
+    video_url: String(cinemaDispatch?.videoUrl || "").trim(),
+    note: "HyperCinema dispatch complete",
+  };
+
+  try {
+    await fetchJson(kernelBaseUrl, "/command", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        kind: "hypercinema.job.ready",
+        payload: readyPayload,
+      }),
+    });
+  } catch {
+    // Keep proposal flow resilient if completion signal fails.
+  }
+
+  return {
+    proposal: normalized,
+    kernelReceipt,
+    cinemaDispatch,
+    experimentId,
+  };
 }
 
 async function handleInstruction(prompt, source = "cli", confidence = 1, options = {}) {
@@ -238,6 +343,14 @@ async function handleVoiceRequest(request, response) {
     { enqueueHermes: false }
   );
 
+  let camiIntent = null;
+  let camiError = null;
+  try {
+    camiIntent = await classifyCamiIntent(transcriptPayload.transcript);
+  } catch (error) {
+    camiError = error.message;
+  }
+
   response.statusCode = 200;
   response.setHeader("content-type", "application/json; charset=utf-8");
   response.end(
@@ -246,6 +359,9 @@ async function handleVoiceRequest(request, response) {
       transcript: transcriptPayload.transcript,
       confidence: transcriptPayload.confidence ?? 1,
       route: routed.route,
+      cami_reply: camiIntent?.reply_text || null,
+      kernel_proposal: camiIntent?.kernel_proposal || null,
+      cami_error: camiError,
       kernelReceipt: routed.kernelReceipt,
       hermesTask: routed.hermesTask,
     })
@@ -253,9 +369,10 @@ async function handleVoiceRequest(request, response) {
 }
 
 async function printStatus() {
-  const [hermesStatus, kernelHealth] = await Promise.all([
+  const [hermesStatus, kernelHealth, contactwayStatus] = await Promise.all([
     fetchJson(hermesBaseUrl, "/status").catch((error) => ({ error: error.message })),
     fetchJson(kernelBaseUrl, "/health").catch((error) => ({ error: error.message })),
+    proxyKernelJson("/api/contactway/status").catch((error) => ({ error: error.message })),
   ]);
 
   console.log("[ClawCompanionBox] desktop private brain");
@@ -283,6 +400,16 @@ async function printStatus() {
       `review ${hermesStatus.counts.review} done ${hermesStatus.counts.done} failed ${hermesStatus.counts.failed}`
     );
   }
+
+  if (contactwayStatus.error) {
+    console.log(`contactway: unavailable (${contactwayStatus.error})`);
+  } else {
+    console.log(
+      `contactway: ${contactwayStatus.enabled ? "enabled" : "disabled"} | ` +
+      `${contactwayStatus.connected ? "connected" : "disconnected"} | ` +
+      `${contactwayStatus.mode} -> ${contactwayStatus.bridge_url}`
+    );
+  }
 }
 
 async function serve() {
@@ -304,10 +431,75 @@ async function serve() {
       }
 
       if (request.method === "GET" && request.url === "/status") {
-        const status = await fetchJson(hermesBaseUrl, "/status");
+        const [hermesStatus, kernelHealth, contactwayStatus] = await Promise.all([
+          fetchJson(hermesBaseUrl, "/status").catch((error) => ({ error: error.message })),
+          fetchJson(kernelBaseUrl, "/health").catch((error) => ({ error: error.message })),
+          proxyKernelJson("/api/contactway/status").catch((error) => ({ error: error.message })),
+        ]);
+
+        response.statusCode = 200;
+        response.setHeader("content-type", "application/json; charset=utf-8");
+        response.end(
+          JSON.stringify({
+            hermes: hermesStatus,
+            kernel: kernelHealth,
+            contactway: contactwayStatus,
+          })
+        );
+        return;
+      }
+
+      if (request.method === "GET" && request.url === "/contactway/status") {
+        const status = await proxyKernelJson("/api/contactway/status");
         response.statusCode = 200;
         response.setHeader("content-type", "application/json; charset=utf-8");
         response.end(JSON.stringify(status));
+        return;
+      }
+
+      if (request.method === "POST" && request.url === "/contactway/connect") {
+        const chunks = [];
+        for await (const chunk of request) {
+          chunks.push(chunk);
+        }
+        const body = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+        const status = await proxyKernelJson("/api/contactway/connect", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        response.statusCode = 200;
+        response.setHeader("content-type", "application/json; charset=utf-8");
+        response.end(JSON.stringify(status));
+        return;
+      }
+
+      if (request.method === "POST" && request.url === "/contactway/disconnect") {
+        const status = await proxyKernelJson("/api/contactway/disconnect", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: "{}",
+        });
+        response.statusCode = 200;
+        response.setHeader("content-type", "application/json; charset=utf-8");
+        response.end(JSON.stringify(status));
+        return;
+      }
+
+      if (request.method === "POST" && request.url === "/contactway/intent") {
+        const chunks = [];
+        for await (const chunk of request) {
+          chunks.push(chunk);
+        }
+        const body = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+        const receipt = await proxyKernelJson("/api/contactway/intent", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        response.statusCode = 200;
+        response.setHeader("content-type", "application/json; charset=utf-8");
+        response.end(JSON.stringify(receipt));
         return;
       }
 
@@ -331,6 +523,37 @@ async function serve() {
 
       if (request.method === "POST" && request.url === "/voice") {
         await handleVoiceRequest(request, response);
+        return;
+      }
+
+      if (request.method === "POST" && request.url === "/proposal/confirm") {
+        const chunks = [];
+        for await (const chunk of request) {
+          chunks.push(chunk);
+        }
+        const body = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+        const confirmed = body.confirm !== false;
+        if (!confirmed) {
+          response.statusCode = 200;
+          response.setHeader("content-type", "application/json; charset=utf-8");
+          response.end(JSON.stringify({ ok: true, cancelled: true }));
+          return;
+        }
+
+        const result = await submitCinemaProposal({
+          proposal: body.kernel_proposal || body.proposal || {},
+          source: String(body.source || "quest3-wrist-confirm"),
+          route: String(body.route || "cami-proposal-confirmed"),
+        });
+
+        response.statusCode = 200;
+        response.setHeader("content-type", "application/json; charset=utf-8");
+        response.end(
+          JSON.stringify({
+            ok: true,
+            ...result,
+          })
+        );
         return;
       }
 

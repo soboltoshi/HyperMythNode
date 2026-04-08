@@ -17,7 +17,7 @@
 #>
 
 param(
-    [string]$UnityPath   = "C:\Program Files\Unity\Hub\Editor\6000.4.1f1\Editor\Unity.exe",
+    [string]$UnityPath   = "D:\UNITY\6000.3.12f1\Editor\Unity.exe",
     [string]$OutputDir   = "",
     [string]$BuildMethod = "LastExperiments.Editor.Build.BuildQuest3Release"
 )

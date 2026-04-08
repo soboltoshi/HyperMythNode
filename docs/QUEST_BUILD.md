@@ -38,7 +38,7 @@ cd C:\hypermythsX
 Optional overrides:
 
 ```powershell
-.\scripts\build-apk.ps1 -UnityPath "C:\Program Files\Unity\Hub\Editor\2022.3.20f1\Editor\Unity.exe"
+.\scripts\build-apk.ps1 -UnityPath "D:\UNITY\6000.3.12f1\Editor\Unity.exe"
 .\scripts\build-apk.ps1 -OutputDir "D:\builds\apk"
 ```
 

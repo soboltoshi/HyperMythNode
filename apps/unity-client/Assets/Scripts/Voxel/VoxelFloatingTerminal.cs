@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using LastExperiments.Core;
 using UnityEngine;
 
 namespace LastExperiments.Voxel
@@ -16,6 +17,9 @@ namespace LastExperiments.Voxel
         private readonly List<string> presetCommands = new()
         {
             "help",
+            "life42 7 0.22",
+            "threecard 6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN hyperflow_assembly 7 0.22",
+            "contactway pulse 0.70 220 vr_ping",
             "slice 8",
             "set 21 9 21 Gold",
             "fill 18 8 18 24 8 24 Stone",
@@ -23,6 +27,7 @@ namespace LastExperiments.Voxel
         };
 
         private int presetIndex;
+        private string lastAgentResultId;
 
         private void Awake()
         {
@@ -137,6 +142,26 @@ namespace LastExperiments.Voxel
 
             var body = string.Join("\n", history);
             textMesh.text = $"{banner}\n{body}";
+        }
+
+        /// <summary>
+        /// Called when a kernel snapshot arrives. Displays any new agent results.
+        /// </summary>
+        public void OnSnapshotReceived(KernelSnapshotResponse snapshot)
+        {
+            if (snapshot?.agent_results == null || snapshot.agent_results.Length == 0)
+            {
+                return;
+            }
+
+            var latest = snapshot.agent_results[0];
+            if (latest.task_id == lastAgentResultId)
+            {
+                return;
+            }
+
+            lastAgentResultId = latest.task_id;
+            Append($"[agent:{latest.role}] {latest.data}");
         }
 
         private void EnsureVisual()

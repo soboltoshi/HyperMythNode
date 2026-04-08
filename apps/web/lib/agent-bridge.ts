@@ -7,6 +7,21 @@ type AgentBridgeConfig = {
 
 type MaybeJson = Record<string, unknown>;
 
+export type ContactwayConnectPayload = {
+  enabled?: boolean;
+  mode?: string;
+  bridge_url?: string;
+};
+
+export type ContactwayIntentPayload = {
+  source_surface: string;
+  channel: string;
+  pattern: string;
+  intensity: number;
+  duration_ms: number;
+  context?: string;
+};
+
 function normalizeUrl(value: string | undefined, fallback: string) {
   return (value || fallback).replace(/\/+$/, "");
 }
@@ -69,6 +84,44 @@ export async function fetchAgentStatus() {
 export async function forwardInstruction(payload: MaybeJson) {
   const config = getAgentBridgeConfig();
   return fetchJson(config.companionBaseUrl, "/instruction", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function fetchContactwayStatus() {
+  const config = getAgentBridgeConfig();
+  return fetchJson(config.kernelBaseUrl, "/api/contactway/status");
+}
+
+export async function connectContactway(payload: ContactwayConnectPayload) {
+  const config = getAgentBridgeConfig();
+  return fetchJson(config.kernelBaseUrl, "/api/contactway/connect", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(payload || {}),
+  });
+}
+
+export async function disconnectContactway() {
+  const config = getAgentBridgeConfig();
+  return fetchJson(config.kernelBaseUrl, "/api/contactway/disconnect", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: "{}",
+  });
+}
+
+export async function forwardContactwayIntent(payload: ContactwayIntentPayload) {
+  const config = getAgentBridgeConfig();
+  return fetchJson(config.kernelBaseUrl, "/api/contactway/intent", {
     method: "POST",
     headers: {
       "content-type": "application/json",

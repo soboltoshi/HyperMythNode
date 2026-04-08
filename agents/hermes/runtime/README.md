@@ -11,6 +11,9 @@ Runnable ASIMOG/Hermes orchestration runtime for local development.
 - `POST /tasks/:id/status`
 - `POST /tasks/:id/grievance`
 - `GET /status`
+- `POST /cami/intent`
+- `POST /hypercinema/dispatch`
+- `GET /hypercinema/poll/:jobId`
 
 Voice and VR instructions can be posted here indirectly through the kernel or companion routing layer. The runtime stores those requests as normal tasks, then ASIMOG-style grievance handling can move them into review when needed.
 

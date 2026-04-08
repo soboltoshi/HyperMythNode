@@ -710,9 +710,24 @@ Starter command families:
 - `SpawnAgent`
 - `MoveAgent`
 - `CreateExperiment`
+- `CreateCinemaExperiment`
 - `StartTimer`
 - `RequestChessMove`
 - `PaintZone`
+
+`CreateCinemaExperiment` shape:
+
+```text
+CreateCinemaExperiment {
+  token_address: string,
+  chain: string,
+  package_type: "1d" | "2d",
+  style_preset: string,
+  creative_prompt?: string,
+  payment_route: "x402_usdc" | "sol_direct"
+}
+-> { experiment_id: string, job_id: string }
+```
 
 #### RouterMoneyInterface
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using LastExperiments.Core;
 using UnityEngine;
 
 namespace LastExperiments.Voxel
@@ -10,6 +11,9 @@ namespace LastExperiments.Voxel
     {
         [SerializeField] private VoxelWorldRuntime worldRuntime;
         [SerializeField] private VoxelCreatorController creatorController;
+        [SerializeField] private KernelClient kernelClient;
+        [SerializeField] private GameOfLifeVoxelAdapter gameOfLifeAdapter;
+        [SerializeField] private ThreeJsVideoAdapter threeJsVideoAdapter;
         [SerializeField] private bool runStartupScriptOnBoot = true;
         [SerializeField] private string startupScript = "startup.lua";
 
@@ -23,6 +27,21 @@ namespace LastExperiments.Voxel
             if (creatorController == null)
             {
                 creatorController = GetComponent<VoxelCreatorController>();
+            }
+
+            if (kernelClient == null)
+            {
+                kernelClient = FindFirstObjectByType<KernelClient>();
+            }
+
+            if (gameOfLifeAdapter == null)
+            {
+                gameOfLifeAdapter = GetComponent<GameOfLifeVoxelAdapter>();
+            }
+
+            if (threeJsVideoAdapter == null)
+            {
+                threeJsVideoAdapter = GetComponent<ThreeJsVideoAdapter>();
             }
         }
 
@@ -57,7 +76,10 @@ namespace LastExperiments.Voxel
                 case "help":
                     result =
                         "help | set x y z block | fill x1 y1 z1 x2 y2 z2 block | " +
-                        "slice y | load_ascii path x y z | run script.lua | select glyph-or-block";
+                        "slice y | load_ascii path x y z | run script.lua | select glyph-or-block | " +
+                        "cinema token [style] [1d|2d] | life42 [steps] [density] [seed] | " +
+                        "threecard token [style] [steps] [density] | " +
+                        "contactway pulse [intensity] [duration_ms] [pattern] | contactway stop";
                     return true;
                 case "set":
                     return ExecuteSet(tokens, out result);
@@ -71,6 +93,14 @@ namespace LastExperiments.Voxel
                     return ExecuteRun(tokens, out result);
                 case "select":
                     return ExecuteSelect(tokens, out result);
+                case "cinema":
+                    return ExecuteCinema(tokens, out result);
+                case "life42":
+                    return ExecuteLife42(tokens, out result);
+                case "threecard":
+                    return ExecuteThreeCard(tokens, out result);
+                case "contactway":
+                    return ExecuteContactway(tokens, out result);
                 default:
                     result = $"unknown command '{tokens[0]}'";
                     return false;
@@ -299,6 +329,246 @@ namespace LastExperiments.Voxel
             return false;
         }
 
+        private bool ExecuteCinema(IReadOnlyList<string> tokens, out string result)
+        {
+            if (tokens.Count < 2)
+            {
+                result = "usage: cinema token_address [style_preset] [1d|2d]";
+                return false;
+            }
+
+            if (kernelClient == null)
+            {
+                result = "kernel client missing";
+                return false;
+            }
+
+            var tokenAddress = tokens[1].Trim();
+            var stylePreset = tokens.Count >= 3 ? tokens[2].Trim() : "hyperflow_assembly";
+            var packageType = tokens.Count >= 4 && tokens[3].Trim().ToLowerInvariant() == "2d" ? "2d" : "1d";
+
+            var request = new KernelCommandRequest
+            {
+                kind = "CreateCinemaExperiment",
+                payload = new KernelCommandPayload
+                {
+                    surface = "quest3",
+                    mode = "vr",
+                    intent = "CreateCinemaExperiment",
+                    note = "creator shell cinema proposal",
+                    source = "creator-shell",
+                    route = "lua-cinema-verb",
+                    token_address = tokenAddress,
+                    chain = "auto",
+                    package_type = packageType,
+                    style_preset = stylePreset,
+                    payment_route = "sol_direct"
+                }
+            };
+
+            kernelClient.SendCommand(
+                request,
+                receipt => Debug.Log($"Cinema proposal receipt: {receipt.receipt} / {receipt.note}"),
+                error => Debug.LogError($"Cinema proposal failed: {error}"));
+
+            result = $"proposed cinema experiment for {tokenAddress} ({stylePreset}, {packageType})";
+            return true;
+        }
+
+        private bool ExecuteLife42(IReadOnlyList<string> tokens, out string result)
+        {
+            if (worldRuntime == null)
+            {
+                result = "voxel world missing";
+                return false;
+            }
+
+            if (gameOfLifeAdapter == null)
+            {
+                result = "GameOfLife adapter missing";
+                return false;
+            }
+
+            var steps = 7;
+            if (tokens.Count >= 2 && TryReadInt(tokens[1], out var parsedSteps))
+            {
+                steps = Mathf.Clamp(parsedSteps, 1, 48);
+            }
+
+            var density = 0.22f;
+            if (tokens.Count >= 3 && TryReadFloat(tokens[2], out var parsedDensity))
+            {
+                density = Mathf.Clamp(parsedDensity, 0.05f, 0.85f);
+            }
+
+            var seed = Environment.TickCount;
+            if (tokens.Count >= 4 && TryReadInt(tokens[3], out var parsedSeed))
+            {
+                seed = parsedSeed;
+            }
+
+            var generation = gameOfLifeAdapter.GenerateIntoWorld(
+                worldRuntime,
+                new GameOfLifeGenerationOptions
+                {
+                    width = 42,
+                    height = 42,
+                    depth = 42,
+                    steps = steps,
+                    seedDensity = density,
+                    randomSeed = seed
+                });
+
+            result =
+                $"life42 generated {generation.width}x{generation.height}x{generation.depth} " +
+                $"steps={generation.steps} seed={generation.randomSeed} alive={generation.aliveCells}";
+            return true;
+        }
+
+        private bool ExecuteThreeCard(IReadOnlyList<string> tokens, out string result)
+        {
+            if (tokens.Count < 2)
+            {
+                result = "usage: threecard token_address [style_preset] [steps] [density]";
+                return false;
+            }
+
+            if (threeJsVideoAdapter == null)
+            {
+                result = "ThreeJs adapter missing";
+                return false;
+            }
+
+            if (worldRuntime == null)
+            {
+                result = "voxel world missing";
+                return false;
+            }
+
+            var tokenAddress = tokens[1].Trim();
+            var stylePreset = tokens.Count >= 3 ? tokens[2].Trim() : "hyperflow_assembly";
+            var steps = 7;
+            if (tokens.Count >= 4 && TryReadInt(tokens[3], out var parsedSteps))
+            {
+                steps = Mathf.Clamp(parsedSteps, 1, 48);
+            }
+
+            var density = 0.22f;
+            if (tokens.Count >= 5 && TryReadFloat(tokens[4], out var parsedDensity))
+            {
+                density = Mathf.Clamp(parsedDensity, 0.05f, 0.85f);
+            }
+
+            var descriptor = threeJsVideoAdapter.BuildCardDescriptor(
+                tokenAddress,
+                stylePreset,
+                worldRuntime.WorldSize,
+                $"threecard {tokenAddress} {stylePreset}");
+
+            if (gameOfLifeAdapter == null)
+            {
+                result =
+                    $"three.js descriptor prepared for {descriptor.token_address} " +
+                    $"seed={descriptor.random_seed} (GameOfLife adapter unavailable)";
+                return true;
+            }
+
+            var generation = gameOfLifeAdapter.GenerateIntoWorld(
+                worldRuntime,
+                new GameOfLifeGenerationOptions
+                {
+                    width = 42,
+                    height = 42,
+                    depth = 42,
+                    steps = steps,
+                    seedDensity = density,
+                    randomSeed = descriptor.random_seed
+                });
+
+            result =
+                $"threecard seeded world with token={descriptor.token_address} style={descriptor.style_preset} " +
+                $"seed={descriptor.random_seed} alive={generation.aliveCells}";
+            return true;
+        }
+
+        private bool ExecuteContactway(IReadOnlyList<string> tokens, out string result)
+        {
+            if (kernelClient == null)
+            {
+                result = "kernel client missing";
+                return false;
+            }
+
+            if (tokens.Count < 2)
+            {
+                result = "usage: contactway pulse [intensity] [duration_ms] [pattern] | contactway stop";
+                return false;
+            }
+
+            var mode = tokens[1].Trim().ToLowerInvariant();
+            var channel = "pulse";
+            var pattern = "vr_ping";
+            var intensity = 0.65f;
+            var durationMs = 220;
+
+            if (mode == "stop")
+            {
+                channel = "stop";
+                pattern = "stop";
+                intensity = 0f;
+                durationMs = 0;
+            }
+            else if (mode == "pulse")
+            {
+                if (tokens.Count >= 3 && TryReadFloat(tokens[2], out var parsedIntensity))
+                {
+                    intensity = Mathf.Clamp(parsedIntensity, 0f, 1f);
+                }
+
+                if (tokens.Count >= 4 && TryReadInt(tokens[3], out var parsedDuration))
+                {
+                    durationMs = Mathf.Clamp(parsedDuration, 0, 20000);
+                }
+
+                if (tokens.Count >= 5 && !string.IsNullOrWhiteSpace(tokens[4]))
+                {
+                    pattern = tokens[4].Trim();
+                }
+            }
+            else
+            {
+                result = "usage: contactway pulse [intensity] [duration_ms] [pattern] | contactway stop";
+                return false;
+            }
+
+            var request = new KernelCommandRequest
+            {
+                kind = "contactway.intent",
+                payload = new KernelCommandPayload
+                {
+                    surface = "quest3",
+                    mode = "vr",
+                    intent = "contactway-intent",
+                    note = "creator shell contactway command",
+                    source = "creator-shell",
+                    route = "lua-contactway",
+                    channel = channel,
+                    pattern = pattern,
+                    intensity = intensity,
+                    duration_ms = durationMs
+                }
+            };
+
+            kernelClient.SendCommand(
+                request,
+                receipt => Debug.Log($"Contactway receipt: {receipt.receipt} / {receipt.note}"),
+                error => Debug.LogError($"Contactway command failed: {error}"));
+
+            result =
+                $"contactway {channel} pattern={pattern} intensity={intensity.ToString(\"0.00\", CultureInfo.InvariantCulture)} duration_ms={durationMs}";
+            return true;
+        }
+
         private static List<string> Tokenize(string commandLine)
         {
             var pieces = commandLine.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
@@ -308,6 +578,11 @@ namespace LastExperiments.Voxel
         private static bool TryReadInt(string value, out int parsed)
         {
             return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed);
+        }
+
+        private static bool TryReadFloat(string value, out float parsed)
+        {
+            return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out parsed);
         }
 
         private static bool TryReadBlock(string token, out VoxelBlockType block)

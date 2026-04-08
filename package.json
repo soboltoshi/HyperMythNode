@@ -14,6 +14,7 @@
     "dev:hermes": "npm --prefix agents/hermes/runtime run start",
     "dev:companion": "npm --workspace desktop/claw-companion run serve",
     "dev:solana": "npm --workspace agents/solana-agent-kit run serve",
-    "test:hermes": "npm --prefix agents/hermes/runtime run test"
+    "test:hermes": "npm --prefix agents/hermes/runtime run test",
+    "start:all": "bash scripts/start-all.sh"
   }
 }

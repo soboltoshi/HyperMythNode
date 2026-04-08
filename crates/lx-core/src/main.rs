@@ -12,13 +12,17 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use reqwest::Client;
+use contactway_adapter::bridge::ContactwayBridge;
 use lx_protocol::{
-    CommandReceipt, CommandRequest, HealthResponse, ServiceEndpoints, ServiceManifestResponse,
-    SnapshotResponse, StylePreset, SurfaceStatus, Surfaces, VideoGenerationJob,
-    VideoGenerationRequest, VideoJobListResponse, VideoOutputManifest, VideoReportResponse,
-    VideoSceneCard, VideoStudioCatalogResponse, VideoStudioPreset,
+    AdapterRegistryEntry, AdapterRegistryResponse, AgentResult, CinemaExperimentRecord,
+    CommandReceipt, CommandRequest, ContactwayConnectRequest, ContactwayIntentReceipt,
+    ContactwayIntentRequest, ContactwayIntentSummary, ContactwayStatusResponse,
+    GameOfLifeGenerateRequest, HealthResponse, ServiceEndpoints, ServiceManifestResponse,
+    SnapshotResponse, StylePreset, SurfaceStatus, Surfaces, ThreeJsCardRequest,
+    VideoGenerationJob, VideoGenerationRequest, VideoJobListResponse, VideoOutputManifest,
+    VideoReportResponse, VideoSceneCard, VideoStudioCatalogResponse, VideoStudioPreset,
 };
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tower_http::cors::CorsLayer;
@@ -27,6 +31,8 @@ const DEFAULT_APP_BASE_URL: &str = "http://127.0.0.1:3000";
 const DEFAULT_KERNEL_BASE_URL: &str = "http://127.0.0.1:8787";
 const DEFAULT_HERMES_RUNTIME_URL: &str = "http://127.0.0.1:8799";
 const DEFAULT_STATE_FILE: &str = "build/kernel/state.json";
+const DEFAULT_CONTACTWAY_MODE: &str = "buttplug_ws";
+const DEFAULT_CONTACTWAY_BRIDGE_URL: &str = "ws://127.0.0.1:12345";
 const KERNEL_BIND: &str = "127.0.0.1:8787";
 
 #[derive(Clone)]
@@ -40,14 +46,23 @@ struct AppState {
     runtime: Arc<Mutex<KernelRuntime>>,
     state_file: Arc<PathBuf>,
     http_client: Client,
+    contactway_default_mode: String,
+    contactway_default_bridge_url: String,
+    contactway_enabled_by_default: bool,
+    contactway_bridge: Arc<tokio::sync::Mutex<ContactwayBridge>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 struct KernelRuntime {
     jobs: Vec<VideoGenerationJob>,
+    cinema_experiments: Vec<CinemaExperimentRecord>,
     command_history: Vec<CommandAudit>,
     next_job_id: u64,
     next_receipt_id: u64,
+    #[serde(default)]
+    contactway: ContactwayRuntimeState,
+    #[serde(default)]
+    agent_results: Vec<AgentResult>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -87,6 +102,31 @@ struct HermesTaskRequest {
     metadata: serde_json::Value,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ContactwayRuntimeState {
+    enabled: bool,
+    connected: bool,
+    mode: String,
+    bridge_url: String,
+    updated_at: String,
+    last_error: Option<String>,
+    last_intent: Option<ContactwayIntentSummary>,
+}
+
+impl Default for ContactwayRuntimeState {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            connected: false,
+            mode: DEFAULT_CONTACTWAY_MODE.to_string(),
+            bridge_url: DEFAULT_CONTACTWAY_BRIDGE_URL.to_string(),
+            updated_at: "0".to_string(),
+            last_error: None,
+            last_intent: None,
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let app_base_url =
@@ -95,6 +135,11 @@ async fn main() {
         std::env::var("KERNEL_BASE_URL").unwrap_or_else(|_| DEFAULT_KERNEL_BASE_URL.to_string());
     let hermes_runtime_url = std::env::var("HERMES_RUNTIME_URL")
         .unwrap_or_else(|_| DEFAULT_HERMES_RUNTIME_URL.to_string());
+    let contactway_default_mode =
+        std::env::var("CONTACTWAY_MODE").unwrap_or_else(|_| DEFAULT_CONTACTWAY_MODE.to_string());
+    let contactway_default_bridge_url = std::env::var("CONTACTWAY_BRIDGE_URL")
+        .unwrap_or_else(|_| DEFAULT_CONTACTWAY_BRIDGE_URL.to_string());
+    let contactway_enabled_by_default = env_bool("CONTACTWAY_ENABLED", false);
     let state_file = std::env::var("KERNEL_STATE_FILE")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from(DEFAULT_STATE_FILE));
@@ -111,6 +156,12 @@ async fn main() {
         KernelRuntime::default()
     });
     normalize_runtime_counters(&mut runtime);
+    normalize_contactway_runtime(
+        &mut runtime,
+        &contactway_default_mode,
+        &contactway_default_bridge_url,
+        contactway_enabled_by_default,
+    );
 
     let state = AppState {
         app_base_url,
@@ -122,6 +173,10 @@ async fn main() {
         runtime: Arc::new(Mutex::new(runtime)),
         state_file: Arc::new(state_file),
         http_client: Client::new(),
+        contactway_default_mode,
+        contactway_default_bridge_url,
+        contactway_enabled_by_default,
+        contactway_bridge: Arc::new(tokio::sync::Mutex::new(ContactwayBridge::new())),
     };
 
     if let Ok(runtime) = with_runtime(&state, |runtime| runtime.clone()) {
@@ -154,6 +209,19 @@ fn build_router(state: AppState) -> Router {
         .route("/api/jobs/{job_id}", get(get_job))
         .route("/api/report/{job_id}", get(get_report))
         .route("/api/video/{job_id}", get(get_video_preview))
+        .route("/api/contactway/status", get(get_contactway_status))
+        .route("/api/contactway/connect", post(contactway_connect))
+        .route("/api/contactway/disconnect", post(contactway_disconnect))
+        .route("/api/contactway/intent", post(contactway_intent))
+        .route("/api/adapters", get(get_adapters))
+        .route(
+            "/api/adapters/game-of-life/generate",
+            post(adapter_game_of_life_generate),
+        )
+        .route(
+            "/api/adapters/threejs/card-descriptor",
+            post(adapter_threejs_card_descriptor),
+        )
         .with_state(state)
         .layer(CorsLayer::permissive())
 }
@@ -166,7 +234,15 @@ async fn health() -> impl IntoResponse {
     })
 }
 
-async fn snapshot() -> impl IntoResponse {
+async fn snapshot(State(state): State<AppState>) -> impl IntoResponse {
+    let (experiments, agent_results) = with_runtime(&state, |runtime| {
+        (
+            runtime.cinema_experiments.clone(),
+            runtime.agent_results.clone(),
+        )
+    })
+    .unwrap_or_default();
+
     Json(SnapshotResponse {
         world_name: "Last Experiments".to_string(),
         world_bounds: [42, 42, 16],
@@ -186,6 +262,8 @@ async fn snapshot() -> impl IntoResponse {
                 status: "later".to_string(),
             },
         },
+        experiments,
+        agent_results,
     })
 }
 
@@ -197,6 +275,144 @@ async fn get_studios(State(state): State<AppState>) -> impl IntoResponse {
     Json(VideoStudioCatalogResponse {
         studios: state.studios,
     })
+}
+
+async fn get_contactway_status(
+    State(state): State<AppState>,
+) -> Result<Json<ContactwayStatusResponse>, StatusCode> {
+    with_runtime(&state, |runtime| {
+        Json(contactway_status_response(&state, runtime))
+    })
+}
+
+async fn contactway_connect(
+    State(state): State<AppState>,
+    Json(request): Json<ContactwayConnectRequest>,
+) -> impl IntoResponse {
+    let mode = request
+        .mode
+        .as_deref()
+        .unwrap_or(state.contactway_default_mode.as_str())
+        .trim()
+        .to_lowercase();
+    let bridge_url = request
+        .bridge_url
+        .as_deref()
+        .unwrap_or(state.contactway_default_bridge_url.as_str())
+        .trim()
+        .to_string();
+    let enabled = request.enabled.unwrap_or(true);
+
+    if !is_supported_contactway_mode(&mode) {
+        let error = ApiError::invalid(
+            "invalid_contactway_mode",
+            "Unsupported contactway mode.",
+            vec![field_issue(
+                "mode",
+                "must be one of: buttplug_ws, intiface_engine, intiface_central, custom",
+            )],
+        );
+        return (StatusCode::UNPROCESSABLE_ENTITY, Json(error)).into_response();
+    }
+
+    if !is_valid_contactway_bridge_url(&bridge_url) {
+        let error = ApiError::invalid(
+            "invalid_contactway_bridge_url",
+            "Bridge URL must include a transport scheme.",
+            vec![field_issue(
+                "bridge_url",
+                "must start with ws://, wss://, http://, or https://",
+            )],
+        );
+        return (StatusCode::UNPROCESSABLE_ENTITY, Json(error)).into_response();
+    }
+
+    // Attempt actual WebSocket connection to buttplug server (best-effort)
+    let bridge_error = if enabled {
+        match state.contactway_bridge.lock().await.connect(&bridge_url).await {
+            Ok(()) => None,
+            Err(e) => {
+                eprintln!("contactway bridge connect warning: {e}");
+                Some(e)
+            }
+        }
+    } else {
+        None
+    };
+
+    match with_runtime_mut(&state, |runtime| {
+        runtime.contactway.enabled = enabled;
+        runtime.contactway.connected = enabled;
+        runtime.contactway.mode = mode.clone();
+        runtime.contactway.bridge_url = bridge_url.clone();
+        runtime.contactway.last_error = bridge_error;
+        runtime.contactway.updated_at = timestamp_string();
+        contactway_status_response(&state, runtime)
+    }) {
+        Ok(status) => (StatusCode::OK, Json(status)).into_response(),
+        Err(status) => status.into_response(),
+    }
+}
+
+async fn contactway_disconnect(State(state): State<AppState>) -> impl IntoResponse {
+    let _ = state.contactway_bridge.lock().await.disconnect().await;
+
+    match with_runtime_mut(&state, |runtime| {
+        runtime.contactway.connected = false;
+        runtime.contactway.enabled = false;
+        runtime.contactway.updated_at = timestamp_string();
+        contactway_status_response(&state, runtime)
+    }) {
+        Ok(status) => (StatusCode::OK, Json(status)).into_response(),
+        Err(status) => status.into_response(),
+    }
+}
+
+async fn contactway_intent(
+    State(state): State<AppState>,
+    Json(request): Json<ContactwayIntentRequest>,
+) -> impl IntoResponse {
+    if let Some(error) = validate_contactway_intent_request(&request) {
+        return (StatusCode::UNPROCESSABLE_ENTITY, Json(error)).into_response();
+    }
+
+    let receipt = match with_runtime_mut(&state, |runtime| {
+        apply_contactway_intent(runtime, request.clone())
+    }) {
+        Ok(receipt) => receipt,
+        Err(status) => return status.into_response(),
+    };
+
+    // Forward accepted intents to the actual buttplug bridge
+    if receipt.accepted {
+        let bridge_intent = contactway_adapter::ContactwayIntent {
+            source_surface: request.source_surface.clone(),
+            channel: request.channel.clone(),
+            pattern: request.pattern.clone(),
+            intensity: request.intensity,
+            duration_ms: request.duration_ms,
+            context: request.context.clone(),
+        };
+        let device_result = state
+            .contactway_bridge
+            .lock()
+            .await
+            .send_intent(&bridge_intent)
+            .await;
+        if !device_result.forwarded {
+            eprintln!(
+                "contactway bridge: intent accepted by kernel but not forwarded to device: {}",
+                device_result.note
+            );
+        }
+    }
+
+    let status = if receipt.accepted {
+        StatusCode::OK
+    } else {
+        StatusCode::CONFLICT
+    };
+    (status, Json(receipt)).into_response()
 }
 
 async fn list_jobs(State(state): State<AppState>) -> impl IntoResponse {
@@ -290,6 +506,88 @@ async fn get_video_preview(
 
     Ok(Redirect::temporary(&job.output.preview_url))
 }
+// ---------------------------------------------------------------------------
+// Adapter endpoints
+// ---------------------------------------------------------------------------
+
+async fn get_adapters(State(state): State<AppState>) -> impl IntoResponse {
+    let contactway_connected = state.contactway_bridge.lock().await.is_connected().await;
+    let contactway_status = if contactway_connected {
+        "connected"
+    } else {
+        "available"
+    };
+
+    Json(AdapterRegistryResponse {
+        adapters: vec![
+            AdapterRegistryEntry {
+                name: "GameOfLifeAdapter".to_string(),
+                kind: "voxel-generator".to_string(),
+                status: "active".to_string(),
+                last_call_at: None,
+            },
+            AdapterRegistryEntry {
+                name: "ThreeJsVideoAdapter".to_string(),
+                kind: "card-descriptor".to_string(),
+                status: "active".to_string(),
+                last_call_at: None,
+            },
+            AdapterRegistryEntry {
+                name: "ContactwayAdapter".to_string(),
+                kind: "haptics-bridge".to_string(),
+                status: contactway_status.to_string(),
+                last_call_at: None,
+            },
+            AdapterRegistryEntry {
+                name: "HyperCinemaAdapter".to_string(),
+                kind: "video-generation".to_string(),
+                status: "active".to_string(),
+                last_call_at: None,
+            },
+            AdapterRegistryEntry {
+                name: "SolanaAgentKitAdapter".to_string(),
+                kind: "blockchain-bridge".to_string(),
+                status: "configured".to_string(),
+                last_call_at: None,
+            },
+        ],
+    })
+}
+
+async fn adapter_game_of_life_generate(
+    Json(request): Json<GameOfLifeGenerateRequest>,
+) -> impl IntoResponse {
+    let gol_request = game_of_life_adapter::GameOfLifeRequest {
+        width: request.width,
+        height: request.height,
+        depth: request.depth,
+        steps: request.steps,
+        seed_density: request.seed_density,
+        random_seed: request.random_seed,
+    };
+
+    let result = game_of_life_adapter::generate(&gol_request);
+    Json(result)
+}
+
+async fn adapter_threejs_card_descriptor(
+    Json(request): Json<ThreeJsCardRequest>,
+) -> impl IntoResponse {
+    let card_request = threejs_adapter::CardDescriptorRequest {
+        token_address: request.token_address,
+        style_preset: request.style_preset,
+        world_size: request.world_size,
+        request_summary: request.request_summary,
+    };
+
+    let descriptor = threejs_adapter::build_card_descriptor(&card_request);
+    Json(descriptor)
+}
+
+// ---------------------------------------------------------------------------
+// Command handling
+// ---------------------------------------------------------------------------
+
 async fn command(
     State(state): State<AppState>,
     Json(request): Json<CommandRequest>,
@@ -323,6 +621,14 @@ async fn command(
             mark_job_done(runtime, job_id);
         }
 
+        let mut accepted = execution.accepted;
+        let mut note = execution.note.clone();
+        if command_kind == "contactway.intent" {
+            let contactway_receipt = apply_contactway_intent_from_command(runtime, payload);
+            accepted = contactway_receipt.accepted;
+            note = contactway_receipt.note;
+        }
+
         let next_receipt_id = runtime.next_receipt_id.max(1);
         let receipt_id = format!("rcpt-{next_receipt_id:06}-{}", timestamp_string());
         runtime.next_receipt_id = next_receipt_id + 1;
@@ -332,17 +638,20 @@ async fn command(
             CommandAudit {
                 receipt: receipt_id.clone(),
                 command_kind: command_kind.clone(),
-                accepted: execution.accepted,
-                note: execution.note.clone(),
+                accepted,
+                note: note.clone(),
                 created_at: timestamp_string(),
             },
         );
 
+        upsert_cinema_experiment(runtime, &command_kind, payload, &receipt_id, accepted);
+        store_agent_result(runtime, &command_kind, payload, accepted);
+
         CommandReceipt {
-            accepted: execution.accepted,
+            accepted,
             command_kind: command_kind.clone(),
             receipt: receipt_id,
-            note: execution.note.clone(),
+            note,
         }
     }) {
         Ok(receipt) => receipt,
@@ -478,6 +787,73 @@ fn execute_command(kind: &str, payload: &serde_json::Map<String, Value>) -> Comm
                 }),
             }
         }
+        "CreateCinemaExperiment" => {
+            let token_address = payload
+                .get("token_address")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+            let chain = payload
+                .get("chain")
+                .and_then(Value::as_str)
+                .unwrap_or("auto")
+                .trim();
+            let package_type = payload
+                .get("package_type")
+                .and_then(Value::as_str)
+                .unwrap_or("1d")
+                .trim();
+            let style_preset = payload
+                .get("style_preset")
+                .and_then(Value::as_str)
+                .unwrap_or("hyperflow_assembly")
+                .trim();
+            let creative_prompt = payload
+                .get("creative_prompt")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+            let payment_route = payload
+                .get("payment_route")
+                .and_then(Value::as_str)
+                .unwrap_or("sol_direct")
+                .trim();
+
+            if token_address.is_empty() {
+                return CommandExecution {
+                    accepted: false,
+                    note: "CreateCinemaExperiment requires payload.token_address".to_string(),
+                    complete_job_id: None,
+                    hermes_task: None,
+                };
+            }
+
+            let instruction = format!(
+                "Dispatch HyperCinema experiment for token {token_address}\nchain: {chain}\npackage: {package_type}\nstyle: {style_preset}\npayment: {payment_route}\nprompt: {creative_prompt}"
+            );
+
+            CommandExecution {
+                accepted: true,
+                note: format!(
+                    "CreateCinemaExperiment accepted for token '{token_address}' ({package_type}, {style_preset})."
+                ),
+                complete_job_id: None,
+                hermes_task: Some(HermesTaskRequest {
+                    role: "hypercinema-delegate".to_string(),
+                    instruction,
+                    metadata: serde_json::json!({
+                        "surface": surface,
+                        "source": payload.get("source").and_then(Value::as_str).unwrap_or("creator-shell"),
+                        "token_address": token_address,
+                        "chain": if chain.is_empty() { "auto" } else { chain },
+                        "package_type": if package_type == "2d" { "2d" } else { "1d" },
+                        "style_preset": if style_preset.is_empty() { "hyperflow_assembly" } else { style_preset },
+                        "creative_prompt": creative_prompt,
+                        "payment_route": if payment_route == "x402_usdc" { "x402_usdc" } else { "sol_direct" },
+                    }),
+                }),
+            }
+        }
         "hypercinema.job.ready" => {
             let complete_job_id = payload
                 .get("job_id")
@@ -501,6 +877,122 @@ fn execute_command(kind: &str, payload: &serde_json::Map<String, Value>) -> Comm
                 hermes_task: None,
             }
         }
+        "contactway.intent" => {
+            if surface.is_empty() {
+                return CommandExecution {
+                    accepted: false,
+                    note: "contactway.intent requires payload.surface".to_string(),
+                    complete_job_id: None,
+                    hermes_task: None,
+                };
+            }
+
+            let channel = payload
+                .get("channel")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+            let pattern = payload
+                .get("pattern")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+            let intensity = payload
+                .get("intensity")
+                .and_then(Value::as_f64)
+                .unwrap_or(0.6);
+            let duration_ms = payload
+                .get("duration_ms")
+                .and_then(Value::as_u64)
+                .unwrap_or(220);
+
+            if channel.is_empty() {
+                return CommandExecution {
+                    accepted: false,
+                    note: "contactway.intent requires payload.channel".to_string(),
+                    complete_job_id: None,
+                    hermes_task: None,
+                };
+            }
+
+            if pattern.is_empty() {
+                return CommandExecution {
+                    accepted: false,
+                    note: "contactway.intent requires payload.pattern".to_string(),
+                    complete_job_id: None,
+                    hermes_task: None,
+                };
+            }
+
+            if !(0.0..=1.0).contains(&intensity) {
+                return CommandExecution {
+                    accepted: false,
+                    note: "contactway.intent payload.intensity must be between 0.0 and 1.0"
+                        .to_string(),
+                    complete_job_id: None,
+                    hermes_task: None,
+                };
+            }
+
+            if duration_ms > 20_000 {
+                return CommandExecution {
+                    accepted: false,
+                    note: "contactway.intent payload.duration_ms must be <= 20000".to_string(),
+                    complete_job_id: None,
+                    hermes_task: None,
+                };
+            }
+
+            CommandExecution {
+                accepted: true,
+                note: format!(
+                    "Contactway intent accepted for channel '{channel}' pattern '{pattern}'."
+                ),
+                complete_job_id: None,
+                hermes_task: None,
+            }
+        }
+        "agent.task.result" => {
+            let task_id = payload
+                .get("task_id")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+            let role = payload
+                .get("role")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+            let result_type = payload
+                .get("result_type")
+                .and_then(Value::as_str)
+                .unwrap_or("text")
+                .trim();
+
+            if task_id.is_empty() {
+                return CommandExecution {
+                    accepted: false,
+                    note: "agent.task.result requires payload.task_id".to_string(),
+                    complete_job_id: None,
+                    hermes_task: None,
+                };
+            }
+
+            CommandExecution {
+                accepted: true,
+                note: format!("Agent result accepted for task '{task_id}' role '{role}' type '{result_type}'."),
+                complete_job_id: None,
+                hermes_task: None,
+            }
+        }
+        "adapter.game_of_life.generate" | "adapter.threejs.build_card" => {
+            CommandExecution {
+                accepted: true,
+                note: format!("Adapter command '{kind}' accepted. Use the /api/adapters/ endpoints for direct access."),
+                complete_job_id: None,
+                hermes_task: None,
+            }
+        }
         _ => CommandExecution {
             accepted: false,
             note: format!("Unsupported command kind '{kind}'."),
@@ -513,7 +1005,10 @@ fn execute_command(kind: &str, payload: &serde_json::Map<String, Value>) -> Comm
 async fn enqueue_hermes_task(state: &AppState, request: &HermesTaskRequest) -> Result<(), String> {
     let response = state
         .http_client
-        .post(format!("{}/tasks", state.hermes_runtime_url.trim_end_matches('/')))
+        .post(format!(
+            "{}/tasks",
+            state.hermes_runtime_url.trim_end_matches('/')
+        ))
         .json(&serde_json::json!({
             "role": request.role,
             "instruction": request.instruction,
@@ -543,6 +1038,387 @@ fn mark_job_done(runtime: &mut KernelRuntime, job_id: &str) {
             return;
         }
     }
+}
+
+fn upsert_cinema_experiment(
+    runtime: &mut KernelRuntime,
+    command_kind: &str,
+    payload: &serde_json::Map<String, Value>,
+    receipt_id: &str,
+    accepted: bool,
+) {
+    if !accepted {
+        return;
+    }
+
+    match command_kind {
+        "CreateCinemaExperiment" => {
+            let token_address = payload
+                .get("token_address")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+
+            if token_address.is_empty() {
+                return;
+            }
+
+            runtime.cinema_experiments.insert(
+                0,
+                CinemaExperimentRecord {
+                    experiment_id: receipt_id.to_string(),
+                    experiment_type: "CinemaExperiment".to_string(),
+                    token_address: token_address.to_string(),
+                    status: "pending".to_string(),
+                    video_url: None,
+                    job_id: None,
+                },
+            );
+        }
+        "hypercinema.job.ready" => {
+            let experiment_id = payload
+                .get("experiment_id")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+            let job_id = payload
+                .get("job_id")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+            let token_address = payload
+                .get("token_address")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+            let video_url = payload
+                .get("video_url")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .trim();
+
+            let target = if !experiment_id.is_empty() {
+                runtime
+                    .cinema_experiments
+                    .iter_mut()
+                    .find(|record| record.experiment_id == experiment_id)
+            } else if !job_id.is_empty() {
+                runtime
+                    .cinema_experiments
+                    .iter_mut()
+                    .find(|record| record.job_id.as_deref() == Some(job_id))
+            } else {
+                None
+            };
+
+            if let Some(record) = target {
+                record.status = "complete".to_string();
+                if !job_id.is_empty() {
+                    record.job_id = Some(job_id.to_string());
+                }
+                if !video_url.is_empty() {
+                    record.video_url = Some(video_url.to_string());
+                }
+                return;
+            }
+
+            runtime.cinema_experiments.insert(
+                0,
+                CinemaExperimentRecord {
+                    experiment_id: if !experiment_id.is_empty() {
+                        experiment_id.to_string()
+                    } else {
+                        receipt_id.to_string()
+                    },
+                    experiment_type: "CinemaExperiment".to_string(),
+                    token_address: token_address.to_string(),
+                    status: "complete".to_string(),
+                    video_url: if video_url.is_empty() {
+                        None
+                    } else {
+                        Some(video_url.to_string())
+                    },
+                    job_id: if job_id.is_empty() {
+                        None
+                    } else {
+                        Some(job_id.to_string())
+                    },
+                },
+            );
+        }
+        _ => {}
+    }
+}
+
+fn store_agent_result(
+    runtime: &mut KernelRuntime,
+    command_kind: &str,
+    payload: &serde_json::Map<String, Value>,
+    accepted: bool,
+) {
+    if command_kind != "agent.task.result" || !accepted {
+        return;
+    }
+
+    let task_id = payload
+        .get("task_id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    let role = payload
+        .get("role")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    let result_type = payload
+        .get("result_type")
+        .and_then(Value::as_str)
+        .unwrap_or("text")
+        .trim()
+        .to_string();
+    let data = payload
+        .get("data")
+        .cloned()
+        .unwrap_or(Value::Null);
+
+    runtime.agent_results.insert(
+        0,
+        AgentResult {
+            task_id,
+            role,
+            result_type,
+            data,
+            timestamp: timestamp_string(),
+        },
+    );
+
+    // Keep only the last 50 results
+    runtime.agent_results.truncate(50);
+}
+
+fn contactway_status_response(
+    state: &AppState,
+    runtime: &KernelRuntime,
+) -> ContactwayStatusResponse {
+    let mode = if runtime.contactway.mode.trim().is_empty() {
+        state.contactway_default_mode.clone()
+    } else {
+        runtime.contactway.mode.trim().to_string()
+    };
+    let bridge_url = if runtime.contactway.bridge_url.trim().is_empty() {
+        state.contactway_default_bridge_url.clone()
+    } else {
+        runtime.contactway.bridge_url.trim().to_string()
+    };
+
+    let default_note = if state.contactway_enabled_by_default {
+        "Kernel default is to start with contactway enabled."
+    } else {
+        "Kernel default is to start with contactway disabled."
+    };
+
+    ContactwayStatusResponse {
+        adapter: "ContactwayAdapter-v1-native".to_string(),
+        mode,
+        bridge_url,
+        enabled: runtime.contactway.enabled,
+        connected: runtime.contactway.connected,
+        updated_at: runtime.contactway.updated_at.clone(),
+        last_error: runtime.contactway.last_error.clone(),
+        last_intent: runtime.contactway.last_intent.clone(),
+        integration_notes: vec![
+            "Native contract over Intiface/Buttplug; no blind import of process injection."
+                .to_string(),
+            "Desktop/web/VR all route through kernel contactway interfaces.".to_string(),
+            "Bridge URL can target Intiface Engine or Intiface Central websocket services."
+                .to_string(),
+            default_note.to_string(),
+        ],
+    }
+}
+
+fn apply_contactway_intent_from_command(
+    runtime: &mut KernelRuntime,
+    payload: &serde_json::Map<String, Value>,
+) -> ContactwayIntentReceipt {
+    match contactway_intent_from_command_payload(payload) {
+        Ok(request) => apply_contactway_intent(runtime, request),
+        Err(error) => ContactwayIntentReceipt {
+            accepted: false,
+            note: error,
+            applied: None,
+        },
+    }
+}
+
+fn contactway_intent_from_command_payload(
+    payload: &serde_json::Map<String, Value>,
+) -> Result<ContactwayIntentRequest, String> {
+    let source_surface = payload
+        .get("surface")
+        .or_else(|| payload.get("source_surface"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    let channel = payload
+        .get("channel")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    let pattern = payload
+        .get("pattern")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    let intensity = payload
+        .get("intensity")
+        .and_then(Value::as_f64)
+        .unwrap_or(0.6) as f32;
+    let duration_ms = payload
+        .get("duration_ms")
+        .and_then(Value::as_u64)
+        .unwrap_or(220);
+    let context = payload
+        .get("context")
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(ToOwned::to_owned);
+
+    let request = ContactwayIntentRequest {
+        source_surface,
+        channel,
+        pattern,
+        intensity,
+        duration_ms,
+        context,
+    };
+
+    if let Some(error) = validate_contactway_intent_request(&request) {
+        let field_summary = if error.fields.is_empty() {
+            error.message
+        } else {
+            error
+                .fields
+                .iter()
+                .map(|field| format!("{} {}", field.field, field.issue))
+                .collect::<Vec<_>>()
+                .join("; ")
+        };
+        return Err(field_summary);
+    }
+
+    Ok(request)
+}
+
+fn validate_contactway_intent_request(request: &ContactwayIntentRequest) -> Option<ApiError> {
+    let mut issues = Vec::new();
+
+    if request.source_surface.trim().is_empty() {
+        issues.push(field_issue("source_surface", "must not be empty"));
+    }
+
+    if request.channel.trim().is_empty() {
+        issues.push(field_issue("channel", "must not be empty"));
+    }
+
+    if request.pattern.trim().is_empty() {
+        issues.push(field_issue("pattern", "must not be empty"));
+    }
+
+    if !(0.0..=1.0).contains(&request.intensity) {
+        issues.push(field_issue("intensity", "must be between 0.0 and 1.0"));
+    }
+
+    if request.duration_ms > 20_000 {
+        issues.push(field_issue("duration_ms", "must be <= 20000"));
+    }
+
+    if issues.is_empty() {
+        None
+    } else {
+        Some(ApiError::invalid(
+            "invalid_contactway_intent",
+            "Contactway intent validation failed.",
+            issues,
+        ))
+    }
+}
+
+fn apply_contactway_intent(
+    runtime: &mut KernelRuntime,
+    request: ContactwayIntentRequest,
+) -> ContactwayIntentReceipt {
+    let now = timestamp_string();
+
+    if !runtime.contactway.enabled {
+        runtime.contactway.connected = false;
+        runtime.contactway.updated_at = now;
+        runtime.contactway.last_error =
+            Some("contactway adapter is disabled; connect it before sending intents".to_string());
+        return ContactwayIntentReceipt {
+            accepted: false,
+            note: "Contactway adapter disabled.".to_string(),
+            applied: None,
+        };
+    }
+
+    if !runtime.contactway.connected {
+        runtime.contactway.updated_at = now;
+        runtime.contactway.last_error =
+            Some("contactway bridge is not connected; run connect before intent".to_string());
+        return ContactwayIntentReceipt {
+            accepted: false,
+            note: "Contactway bridge is not connected.".to_string(),
+            applied: None,
+        };
+    }
+
+    let summary = ContactwayIntentSummary {
+        source_surface: request.source_surface.trim().to_string(),
+        channel: request.channel.trim().to_string(),
+        pattern: request.pattern.trim().to_string(),
+        intensity: request.intensity.clamp(0.0, 1.0),
+        duration_ms: request.duration_ms.min(20_000),
+        context: request
+            .context
+            .map(|value| value.trim().to_string())
+            .filter(|value| !value.is_empty()),
+        created_at: now.clone(),
+    };
+
+    runtime.contactway.last_intent = Some(summary.clone());
+    runtime.contactway.updated_at = now;
+    runtime.contactway.last_error = None;
+
+    ContactwayIntentReceipt {
+        accepted: true,
+        note: format!(
+            "Contactway intent routed: {} / {}",
+            summary.channel, summary.pattern
+        ),
+        applied: Some(summary),
+    }
+}
+
+fn is_supported_contactway_mode(mode: &str) -> bool {
+    matches!(
+        mode.trim().to_lowercase().as_str(),
+        "buttplug_ws" | "intiface_engine" | "intiface_central" | "custom"
+    )
+}
+
+fn is_valid_contactway_bridge_url(url: &str) -> bool {
+    let trimmed = url.trim().to_lowercase();
+    trimmed.starts_with("ws://")
+        || trimmed.starts_with("wss://")
+        || trimmed.starts_with("http://")
+        || trimmed.starts_with("https://")
 }
 
 fn validate_video_request(
@@ -728,6 +1604,45 @@ fn normalize_runtime_counters(runtime: &mut KernelRuntime) {
 
     if runtime.next_receipt_id == 0 {
         runtime.next_receipt_id = runtime.command_history.len() as u64 + 1;
+    }
+}
+
+fn normalize_contactway_runtime(
+    runtime: &mut KernelRuntime,
+    default_mode: &str,
+    default_bridge_url: &str,
+    enabled_by_default: bool,
+) {
+    if runtime.contactway.mode.trim().is_empty() {
+        runtime.contactway.mode = default_mode.to_string();
+    }
+
+    if runtime.contactway.bridge_url.trim().is_empty() {
+        runtime.contactway.bridge_url = default_bridge_url.to_string();
+    }
+
+    let appears_uninitialized =
+        runtime.contactway.updated_at.trim().is_empty() || runtime.contactway.updated_at == "0";
+    if appears_uninitialized {
+        runtime.contactway.enabled = enabled_by_default;
+        runtime.contactway.updated_at = timestamp_string();
+    }
+
+    if !runtime.contactway.enabled {
+        runtime.contactway.connected = false;
+    }
+}
+
+fn env_bool(key: &str, default: bool) -> bool {
+    let value = match std::env::var(key) {
+        Ok(value) => value,
+        Err(_) => return default,
+    };
+
+    match value.trim().to_lowercase().as_str() {
+        "1" | "true" | "yes" | "on" => true,
+        "0" | "false" | "no" | "off" => false,
+        _ => default,
     }
 }
 
@@ -1227,6 +2142,10 @@ mod tests {
             })),
             state_file: Arc::new(state_file),
             http_client: Client::new(),
+            contactway_default_mode: DEFAULT_CONTACTWAY_MODE.to_string(),
+            contactway_default_bridge_url: DEFAULT_CONTACTWAY_BRIDGE_URL.to_string(),
+            contactway_enabled_by_default: false,
+            contactway_bridge: Arc::new(tokio::sync::Mutex::new(ContactwayBridge::new())),
         }
     }
 
@@ -1290,6 +2209,96 @@ mod tests {
 
         assert!(!receipt.accepted);
         assert_eq!(receipt.command_kind, "unknown.command");
+    }
+
+    #[tokio::test]
+    async fn contactway_intent_requires_connect() {
+        let app = build_router(test_state());
+
+        let payload = serde_json::json!({
+            "kind": "contactway.intent",
+            "payload": {
+                "surface": "quest3",
+                "channel": "pulse",
+                "pattern": "vr_tap",
+                "intensity": 0.7,
+                "duration_ms": 220
+            }
+        });
+
+        let request = Request::builder()
+            .method("POST")
+            .uri("/command")
+            .header("content-type", "application/json")
+            .body(Body::from(payload.to_string()))
+            .expect("request should build");
+
+        let response = app.oneshot(request).await.expect("router should respond");
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .expect("body should decode");
+        let receipt: CommandReceipt =
+            serde_json::from_slice(&body).expect("receipt JSON should parse");
+
+        assert!(!receipt.accepted);
+        assert_eq!(receipt.command_kind, "contactway.intent");
+    }
+
+    #[tokio::test]
+    async fn contactway_connect_then_intent_succeeds() {
+        let app = build_router(test_state());
+
+        let connect_request = Request::builder()
+            .method("POST")
+            .uri("/api/contactway/connect")
+            .header("content-type", "application/json")
+            .body(Body::from(
+                serde_json::json!({
+                    "enabled": true,
+                    "mode": "buttplug_ws",
+                    "bridge_url": "ws://127.0.0.1:12345"
+                })
+                .to_string(),
+            ))
+            .expect("request should build");
+        let connect_response = app
+            .clone()
+            .oneshot(connect_request)
+            .await
+            .expect("router should respond");
+        assert_eq!(connect_response.status(), StatusCode::OK);
+
+        let intent_request = Request::builder()
+            .method("POST")
+            .uri("/api/contactway/intent")
+            .header("content-type", "application/json")
+            .body(Body::from(
+                serde_json::json!({
+                    "source_surface": "quest3",
+                    "channel": "pulse",
+                    "pattern": "vr_tap",
+                    "intensity": 0.65,
+                    "duration_ms": 240,
+                    "context": "test"
+                })
+                .to_string(),
+            ))
+            .expect("request should build");
+        let intent_response = app
+            .oneshot(intent_request)
+            .await
+            .expect("router should respond");
+        assert_eq!(intent_response.status(), StatusCode::OK);
+
+        let body = axum::body::to_bytes(intent_response.into_body(), usize::MAX)
+            .await
+            .expect("body should decode");
+        let receipt: ContactwayIntentReceipt =
+            serde_json::from_slice(&body).expect("receipt JSON should parse");
+        assert!(receipt.accepted);
+        assert!(receipt.applied.is_some());
     }
 
     #[test]

@@ -94,6 +94,11 @@ export class HermesRuntime {
     };
   }
 
+  /** Return the oldest queued task, or null if none. */
+  getNextQueuedTask() {
+    return this.state.tasks.find((task) => task.status === "queued") ?? null;
+  }
+
   createTask({ role, instruction, metadata = {} }) {
     const normalizedRole = String(role || "").trim();
     const normalizedInstruction = String(instruction || "").trim();

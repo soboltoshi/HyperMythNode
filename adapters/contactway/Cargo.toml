@@ -1,0 +1,12 @@
+[package]
+name = "contactway-adapter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+buttplug = "9"
+futures = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["sync", "time"] }

@@ -1,6 +1,79 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+// ---------------------------------------------------------------------------
+// Agent results (server-side agent execution -> snapshot delivery)
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AgentResult {
+    pub task_id: String,
+    pub role: String,
+    pub result_type: String,
+    pub data: Value,
+    pub timestamp: String,
+}
+
+// ---------------------------------------------------------------------------
+// Adapter registry
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdapterRegistryEntry {
+    pub name: String,
+    pub kind: String,
+    pub status: String,
+    pub last_call_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdapterRegistryResponse {
+    pub adapters: Vec<AdapterRegistryEntry>,
+}
+
+// ---------------------------------------------------------------------------
+// Game of Life adapter (kernel-level request/response wrappers)
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GameOfLifeGenerateRequest {
+    #[serde(default = "default_42")]
+    pub width: u32,
+    #[serde(default = "default_42")]
+    pub height: u32,
+    #[serde(default = "default_42")]
+    pub depth: u32,
+    #[serde(default = "default_7")]
+    pub steps: u32,
+    #[serde(default = "default_density")]
+    pub seed_density: f32,
+    #[serde(default = "default_seed")]
+    pub random_seed: i32,
+}
+
+fn default_42() -> u32 { 42 }
+fn default_7() -> u32 { 7 }
+fn default_density() -> f32 { 0.22 }
+fn default_seed() -> i32 { 424242 }
+
+// ---------------------------------------------------------------------------
+// ThreeJS card adapter (kernel-level request wrapper)
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ThreeJsCardRequest {
+    pub token_address: String,
+    #[serde(default = "default_style_preset")]
+    pub style_preset: String,
+    #[serde(default = "default_world_size")]
+    pub world_size: [u32; 3],
+    #[serde(default)]
+    pub request_summary: String,
+}
+
+fn default_style_preset() -> String { "hyperflow_assembly".to_string() }
+fn default_world_size() -> [u32; 3] { [42, 16, 42] }
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HealthResponse {
     pub ok: bool,
@@ -15,6 +88,9 @@ pub struct SnapshotResponse {
     pub active_agents: u8,
     pub release_focus: String,
     pub surfaces: Surfaces,
+    pub experiments: Vec<CinemaExperimentRecord>,
+    #[serde(default)]
+    pub agent_results: Vec<AgentResult>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -31,6 +107,16 @@ pub struct SurfaceStatus {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CinemaExperimentRecord {
+    pub experiment_id: String,
+    pub experiment_type: String,
+    pub token_address: String,
+    pub status: String,
+    pub video_url: Option<String>,
+    pub job_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommandRequest {
     pub kind: String,
     pub payload: Value,
@@ -42,6 +128,54 @@ pub struct CommandReceipt {
     pub command_kind: String,
     pub receipt: String,
     pub note: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContactwayStatusResponse {
+    pub adapter: String,
+    pub mode: String,
+    pub bridge_url: String,
+    pub enabled: bool,
+    pub connected: bool,
+    pub updated_at: String,
+    pub last_error: Option<String>,
+    pub last_intent: Option<ContactwayIntentSummary>,
+    pub integration_notes: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContactwayConnectRequest {
+    pub enabled: Option<bool>,
+    pub mode: Option<String>,
+    pub bridge_url: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContactwayIntentRequest {
+    pub source_surface: String,
+    pub channel: String,
+    pub pattern: String,
+    pub intensity: f32,
+    pub duration_ms: u64,
+    pub context: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContactwayIntentSummary {
+    pub source_surface: String,
+    pub channel: String,
+    pub pattern: String,
+    pub intensity: f32,
+    pub duration_ms: u64,
+    pub context: Option<String>,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContactwayIntentReceipt {
+    pub accepted: bool,
+    pub note: String,
+    pub applied: Option<ContactwayIntentSummary>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,4 +1,5 @@
 using LastExperiments.Core;
+using LastExperiments.Voxel;
 using UnityEngine;
 
 namespace LastExperiments.Cinema
@@ -23,6 +24,7 @@ namespace LastExperiments.Cinema
         [Header("Dependencies")]
         [SerializeField] private HyperCinemaClient cinemaClient;
         [SerializeField] private KernelClient kernelClient;
+        [SerializeField] private ThreeJsVideoAdapter threeJsVideoAdapter;
 
         [Header("Boot behaviour")]
         [SerializeField] private bool fetchManifestOnBoot = true;
@@ -37,6 +39,7 @@ namespace LastExperiments.Cinema
         [SerializeField] private string currentJobTitle = "none";
         [SerializeField] private int currentSceneCount = 0;
         [SerializeField] private string currentJobSummary = "";
+        [SerializeField] private string latestThreeJsSeed = "none";
 
         public HyperCinemaJob CurrentJob { get; private set; }
         public HyperCinemaServiceManifest ServiceManifest { get; private set; }
@@ -51,6 +54,11 @@ namespace LastExperiments.Cinema
             if (kernelClient == null)
             {
                 kernelClient = FindFirstObjectByType<KernelClient>();
+            }
+
+            if (threeJsVideoAdapter == null)
+            {
+                threeJsVideoAdapter = FindFirstObjectByType<ThreeJsVideoAdapter>();
             }
         }
 
@@ -122,6 +130,7 @@ namespace LastExperiments.Cinema
                 string.IsNullOrWhiteSpace(studio) ? defaultStudio : studio,
                 coreIdea);
             request.style_preset = defaultStylePreset;
+            ApplyThreeJsDescriptor(request);
 
             surfaceStatus = $"creating job — {request.studio}";
 
@@ -136,6 +145,7 @@ namespace LastExperiments.Cinema
                 return;
             }
 
+            ApplyThreeJsDescriptor(request);
             surfaceStatus = $"creating job — {request.studio}";
             cinemaClient.CreateJob(request, HandleJobCreated, HandleError);
         }
@@ -218,6 +228,35 @@ namespace LastExperiments.Cinema
                     }
                 },
                 HandleError);
+        }
+
+        private void ApplyThreeJsDescriptor(HyperCinemaJobRequest request)
+        {
+            if (request == null || threeJsVideoAdapter == null)
+            {
+                return;
+            }
+
+            var world = FindFirstObjectByType<VoxelWorldRuntime>();
+            var worldSize = world != null ? world.WorldSize : new Vector3Int(42, 16, 42);
+            var tokenHint = !string.IsNullOrWhiteSpace(request.token_address)
+                ? request.token_address
+                : request.core_idea;
+            var styleHint = string.IsNullOrWhiteSpace(request.style_preset)
+                ? defaultStylePreset
+                : request.style_preset;
+
+            var descriptor = threeJsVideoAdapter.BuildCardDescriptor(
+                tokenHint,
+                styleHint,
+                worldSize,
+                request.core_idea);
+
+            latestThreeJsSeed = descriptor.random_seed.ToString();
+            var descriptorSummary = $"threejs_scene={descriptor.scene_profile}; seed={descriptor.random_seed}";
+            request.requested_prompt = string.IsNullOrWhiteSpace(request.requested_prompt)
+                ? descriptorSummary
+                : $"{request.requested_prompt}\n{descriptorSummary}";
         }
 
         // ---- Error handling ----

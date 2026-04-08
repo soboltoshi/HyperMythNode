@@ -34,11 +34,12 @@ async function fetchOptional(baseUrl, path) {
 }
 
 async function printStatus() {
-  const [healthResult, manifestResult, jobsResult, hermesResult] = await Promise.all([
+  const [healthResult, manifestResult, jobsResult, hermesResult, contactwayResult] = await Promise.all([
     fetchOptional(kernelBaseUrl, "/health"),
     fetchOptional(kernelBaseUrl, "/api/service"),
     fetchOptional(kernelBaseUrl, "/api/jobs"),
     fetchOptional(hermesBaseUrl, "/status"),
+    fetchOptional(companionBaseUrl, "/contactway/status"),
   ]);
   const companionResult = await fetchOptional(companionBaseUrl, "/health");
 
@@ -46,6 +47,7 @@ async function printStatus() {
   const manifest = manifestResult.ok ? manifestResult.value : null;
   const jobs = jobsResult.ok ? jobsResult.value : null;
   const hermesStatus = hermesResult.ok ? hermesResult.value : null;
+  const contactwayStatus = contactwayResult.ok ? contactwayResult.value : null;
   const latestJob = jobs?.jobs?.[0] ?? null;
 
   console.log(`[${shellIdentity.name}] ${shellIdentity.role}`);
@@ -91,6 +93,16 @@ async function printStatus() {
     console.log(`companion: ok | ${companionResult.value.service}`);
   } else {
     console.log(`companion: offline (${companionResult.error})`);
+  }
+
+  if (contactwayStatus) {
+    console.log(
+      `contactway: ${contactwayStatus.enabled ? "enabled" : "disabled"} | ` +
+      `${contactwayStatus.connected ? "connected" : "disconnected"} | ` +
+      `${contactwayStatus.mode}`
+    );
+  } else {
+    console.log(`contactway: unavailable (${contactwayResult.error})`);
   }
 }
 

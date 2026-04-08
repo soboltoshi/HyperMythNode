@@ -9,6 +9,8 @@ namespace LastExperiments.Voxel
         [SerializeField] private VoxelCreatorController creator;
         [SerializeField] private bool visible = true;
         [SerializeField] private TextMesh textMesh;
+        [SerializeField] private string transientPrompt = "";
+        [SerializeField] private float transientPromptUntil = -1f;
 
         public bool Visible => visible;
 
@@ -19,6 +21,13 @@ namespace LastExperiments.Voxel
 
         private void LateUpdate()
         {
+            if (transientPromptUntil > 0f && transientPromptUntil <= Time.time && !string.IsNullOrWhiteSpace(transientPrompt))
+            {
+                transientPrompt = "";
+                transientPromptUntil = -1f;
+                RefreshText();
+            }
+
             if (textMesh == null || wristAnchor == null || !visible)
             {
                 return;
@@ -48,12 +57,28 @@ namespace LastExperiments.Voxel
             }
         }
 
+        public void ShowPrompt(string message, float seconds = 6f)
+        {
+            transientPrompt = message ?? "";
+            transientPromptUntil = Time.time + Mathf.Max(0.5f, seconds);
+            RefreshText();
+        }
+
+        public void ClearPrompt()
+        {
+            transientPrompt = "";
+            transientPromptUntil = -1f;
+            RefreshText();
+        }
+
         public void RefreshText()
         {
             if (textMesh == null)
             {
                 return;
             }
+
+            var hasPrompt = transientPromptUntil > Time.time && !string.IsNullOrWhiteSpace(transientPrompt);
 
             var selection = creator != null ? creator.GetSelectionSummary() : "none";
             textMesh.text =
@@ -62,7 +87,8 @@ namespace LastExperiments.Voxel
                 "L-Grip: voice capture\n" +
                 "R-Primary: cycle block\n" +
                 "R-Trigger: place block\n" +
-                "R-Grip: remove block";
+                "R-Grip: remove block" +
+                (hasPrompt ? $"\n\n{transientPrompt}" : "");
         }
 
         private void EnsureVisual()

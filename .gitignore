@@ -12,3 +12,12 @@ agents/vendor/claw-code-parity/
 *.log
 .DS_Store
 Thumbs.db
+
+# External cloned repos (reference only, not submodules)
+external/
+
+# Unity generated
+apps/unity-client/Library/
+apps/unity-client/Temp/
+apps/unity-client/UserSettings/
+apps/unity-client/Packages/packages-lock.json

@@ -1,5 +1,11 @@
 [workspace]
-members = ["crates/lx-core", "crates/lx-protocol"]
+members = [
+    "crates/lx-core",
+    "crates/lx-protocol",
+    "adapters/game-of-life",
+    "adapters/threejs",
+    "adapters/contactway",
+]
 resolver = "2"
 
 [workspace.package]

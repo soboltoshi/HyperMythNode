@@ -29,6 +29,8 @@ namespace LastExperiments.Embodiment
         [SerializeField] private VoxelWristMenu wristMenu;
         [SerializeField] private VoxelFloatingTerminal floatingTerminal;
         [SerializeField] private VoxelLuaBridge luaBridge;
+        [SerializeField] private GameOfLifeVoxelAdapter gameOfLifeAdapter;
+        [SerializeField] private ThreeJsVideoAdapter threeJsVideoAdapter;
         [SerializeField] private VoxelLocomotionController locomotionController;
         [SerializeField] private QuestVoiceBridge voiceBridge;
         [SerializeField] private QuestXriStackBootstrap xriStackBootstrap;
@@ -172,6 +174,24 @@ namespace LastExperiments.Embodiment
                 if (luaBridge == null)
                 {
                     luaBridge = gameObject.AddComponent<VoxelLuaBridge>();
+                }
+            }
+
+            if (gameOfLifeAdapter == null)
+            {
+                gameOfLifeAdapter = GetComponent<GameOfLifeVoxelAdapter>();
+                if (gameOfLifeAdapter == null)
+                {
+                    gameOfLifeAdapter = gameObject.AddComponent<GameOfLifeVoxelAdapter>();
+                }
+            }
+
+            if (threeJsVideoAdapter == null)
+            {
+                threeJsVideoAdapter = GetComponent<ThreeJsVideoAdapter>();
+                if (threeJsVideoAdapter == null)
+                {
+                    threeJsVideoAdapter = gameObject.AddComponent<ThreeJsVideoAdapter>();
                 }
             }
 
